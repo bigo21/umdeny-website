@@ -165,6 +165,18 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   transition: background 0.3s ease;
 }
 .header--no-bandeau { top: 0; }
+.header--top {
+  background: var(--navy-deep);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom-color: rgba(191, 142, 80, 0.15);
+}
+.header--top .brand__text { color: #fff; }
+.header--top .brand__mark { filter: brightness(0) invert(1); }
+.header--top .nav__link { color: rgba(255, 255, 255, 0.82); }
+.header--top .nav__link:hover { color: var(--gold-soft); }
+.header--top .nav__link.active { color: var(--gold-soft); }
+.header--top .menu-toggle { color: #fff; }
 .header__inner {
   display: flex;
   align-items: center;

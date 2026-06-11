@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -25,7 +25,7 @@ function Bandeau({ onClose }: { onClose: () => void }) {
   );
 }
 
-function Header({ bandeauVisible }: { bandeauVisible: boolean }) {
+function Header({ bandeauVisible, scrolled }: { bandeauVisible: boolean; scrolled: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -39,7 +39,7 @@ function Header({ bandeauVisible }: { bandeauVisible: boolean }) {
   ];
 
   return (
-    <header className={"header" + (!bandeauVisible ? " header--no-bandeau" : "")}>
+    <header className={"header" + (!bandeauVisible ? " header--no-bandeau" : "") + (!scrolled ? " header--top" : "")}>
       <div className="header__inner">
         <Link href="/" className="brand" aria-label="Umdeny Capital — Accueil">
           <span className="brand__mark" />
@@ -208,10 +208,18 @@ function Footer() {
 
 export function Chrome({ children }: { children: React.ReactNode }) {
   const [bandeauVisible, setBandeauVisible] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <>
       {bandeauVisible && <Bandeau onClose={() => setBandeauVisible(false)} />}
-      <Header bandeauVisible={bandeauVisible} />
+      <Header bandeauVisible={bandeauVisible} scrolled={scrolled} />
       {children}
       <PreFooter />
       <Footer />
