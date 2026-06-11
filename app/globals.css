@@ -166,7 +166,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 }
 .header--no-bandeau { top: 0; }
 .header--top {
-  background: var(--navy-deep);
+  background: var(--navy);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   border-bottom-color: rgba(191, 142, 80, 0.15);
