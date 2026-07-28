@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Maquettes et sources du design : matière de référence, hors dépôt.
     "design_handoff_site_umdeny/**",
+    // Sortie de compilation des tests de scoring.
+    ".test-build/**",
   ]),
 ]);
 

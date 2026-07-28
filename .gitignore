@@ -42,3 +42,6 @@ next-env.d.ts
 
 # design handoff (maquettes & sources, hors dépôt)
 /design_handoff_site_umdeny/
+
+# sortie de compilation des tests de scoring
+/.test-build/

@@ -1,0 +1,17 @@
+// Compilation isolée des tests de scoring : Node exécute du JavaScript, et
+// les modules de lib/quiz-apporteur utilisent des imports sans extension que
+// le mode natif de Node ne sait pas résoudre. On les compile donc en CommonJS
+// dans .test-build (ignoré par git) avant de lancer node --test.
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": ".test-build",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node"]
+  },
+  "include": ["tests/scoring.test.ts", "lib/quiz-apporteur/data.ts", "lib/quiz-apporteur/scoring.ts", "lib/quiz-apporteur/types.ts"]
+}
