@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/assets/umdeny.ico" />
+  <title>Umdeny Capital — Site en maintenance</title>
+  <meta name="description" content="Notre plateforme de gestion patrimoniale arrive bientôt. En attendant, découvrez gratuitement votre profil patrimonial." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto+Condensed:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #040B30;
+      --navy-soft: #0A1648;
+      --gold: #DFB56D;
+      --gold-bright: #ECC787;
+      --gold-deep: #B98F4B;
+      --ink-on-gold: #040B30;
+      --display: "Roboto Condensed", system-ui, sans-serif;
+      --body: "Poppins", system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--body);
+      background: var(--navy);
+      color: #fff;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient gold glow + faint architectural lines */
+    .bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(820px 620px at 50% 8%, rgba(223,181,109,0.16), transparent 62%),
+        radial-gradient(700px 560px at 88% 96%, rgba(10,22,72,0.9), transparent 60%),
+        radial-gradient(700px 560px at 8% 88%, rgba(223,181,109,0.05), transparent 60%);
+    }
+    .bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.4;
+      background-image:
+        repeating-linear-gradient(90deg, transparent 0 119px, rgba(223,181,109,0.05) 119px 120px);
+      mask-image: linear-gradient(180deg, transparent, #000 40%, #000 60%, transparent);
+      -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%, #000 60%, transparent);
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      width: 100%;
+      max-width: 940px;
+      margin: 0 auto;
+      padding: clamp(32px, 6vh, 72px) clamp(22px, 5vw, 48px) 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Logo */
+    .logo {
+      height: clamp(56px, 8vw, 84px);
+      width: auto;
+      margin-bottom: clamp(40px, 7vh, 84px);
+    }
+
+    /* Status pill */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      border: 1px solid rgba(223,181,109,0.4);
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+    }
+    .status .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 0 rgba(223,181,109,0.6);
+    }
+
+    h1 {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(34px, 6.2vw, 68px);
+      line-height: 1.03;
+      letter-spacing: -0.015em;
+      margin-bottom: 22px;
+    }
+    h1 .accent { color: var(--gold); }
+
+    .subtitle {
+      font-weight: 300;
+      font-size: clamp(15px, 1.7vw, 19px);
+      line-height: 1.65;
+      color: rgba(255,255,255,0.78);
+      max-width: 58ch;
+      margin-bottom: clamp(40px, 6vh, 64px);
+    }
+
+    /* Divider */
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: clamp(32px, 5vh, 48px);
+      color: var(--gold);
+    }
+    .ornament .line { width: 56px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+    .ornament .line.r { background: linear-gradient(90deg, var(--gold), transparent); }
+    .ornament .diamond { width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); }
+
+    /* CTA block — the priority */
+    .cta-block {
+      width: 100%;
+      max-width: 640px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(223,181,109,0.22);
+      border-radius: 16px;
+      padding: clamp(28px, 4vw, 44px) clamp(24px, 4vw, 48px);
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-block::before {
+      content: "";
+      position: absolute;
+      top: -1px; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .cta-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+    .cta-lead {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: clamp(21px, 2.8vw, 30px);
+      line-height: 1.18;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    .cta-sub {
+      font-weight: 300;
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.72);
+      max-width: 48ch;
+      margin: 0 auto 28px;
+    }
+    .cta-sub strong { color: var(--gold); font-weight: 500; }
+
+    .cta-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: 100%;
+      padding: 20px 28px;
+      background: var(--gold);
+      color: var(--ink-on-gold);
+      border-radius: 10px;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(16px, 2vw, 20px);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 18px 40px -16px rgba(223,181,109,0.6);
+    }
+    .cta-btn:hover {
+      background: var(--gold-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 24px 50px -16px rgba(223,181,109,0.75);
+    }
+    .cta-btn:active { transform: translateY(0); }
+    .cta-btn .arrow { transition: transform 0.2s ease; display: inline-flex; }
+    .cta-btn:hover .arrow { transform: translateX(5px); }
+
+    .cta-meta {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 22px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.02em;
+    }
+    .cta-meta span { display: inline-flex; align-items: center; gap: 7px; }
+    .cta-meta .ico { color: var(--gold); display: inline-flex; }
+
+    /* Contact */
+    .contact {
+      margin-top: clamp(40px, 6vh, 60px);
+    }
+    .contact__label {
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 8px;
+      font-weight: 300;
+    }
+    .contact__mail {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: clamp(18px, 2.4vw, 24px);
+      letter-spacing: 0.01em;
+      color: #fff;
+      text-decoration: none;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(223,181,109,0.4);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .contact__mail:hover { color: var(--gold); border-color: var(--gold); }
+    .contact__mail .ico { color: var(--gold); display: inline-flex; }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 26px 22px 30px;
+      font-size: 11.5px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.04em;
+      border-top: 1px solid rgba(223,181,109,0.1);
+    }
+    footer .slogan {
+      color: var(--gold);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-size: 10.5px;
+      margin-bottom: 8px;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(223,181,109,0.55); }
+      70% { box-shadow: 0 0 0 9px rgba(223,181,109,0); }
+      100% { box-shadow: 0 0 0 0 rgba(223,181,109,0); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .status .dot { animation: pulse 2.4s ease-out infinite; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <main class="wrap">
+    <img class="logo" src="/assets/logo-light-trim.png" alt="Umdeny Capital" />
+
+    <div class="status">
+      <span class="dot"></span>
+      Site en maintenance
+    </div>
+
+    <h1>Notre site est<br/>en <span class="accent">maintenance</span>.</h1>
+
+    <p class="subtitle">
+      Notre plateforme de gestion patrimoniale revient bientôt.
+    </p>
+
+    <div class="ornament" aria-hidden="true">
+      <span class="line"></span>
+      <span class="diamond"></span>
+      <span class="line r"></span>
+    </div>
+
+    <section class="cta-block" aria-labelledby="cta-lead">
+      <div class="cta-eyebrow">Diagnostic patrimonial · Gratuit</div>
+      <h2 class="cta-lead" id="cta-lead">Découvrez votre profil patrimonial gratuitement.</h2>
+      <p class="cta-sub">
+        En <strong>5 minutes</strong>, notre quiz analyse votre situation, vos objectifs et votre rapport au risque — et vous oriente vers les solutions les plus adaptées à votre profil.
+      </p>
+
+      <a class="cta-btn" href="https://quizz.umdeny.com" target="_blank" rel="noopener">
+        Faire mon diagnostic gratuit
+        <span class="arrow" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </span>
+      </a>
+
+      <div class="cta-meta">
+        <span><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> ≈ 5 minutes</span>
+        <span><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12l5 5L20 7"/></svg></span> 100% confidentiel</span>
+        <span><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v5c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-3z"/></svg></span> Sans engagement</span>
+      </div>
+    </section>
+
+    <div class="contact">
+      <p class="contact__label">Pour toute demande d'accompagnement ou d'investissement</p>
+      <a class="contact__mail" href="mailto:capital@umdeny.com">
+        <span class="ico" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="m3 7 9 6 9-6"/></svg>
+        </span>
+        capital@umdeny.com
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="slogan">From Patrimony to Legacy</div>
+    © 2019–2026 Umdeny Capital
+  </footer>
+</body>
+</html>
