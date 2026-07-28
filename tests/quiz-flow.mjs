@@ -3,8 +3,11 @@
 // Cartes) et applique le même jeu de vérifications à toutes.
 //
 //   npm run build && npx next start -p 3000
-//   npm run test:quiz            # port 3000 par défaut
-//   npm run test:quiz -- 3993    # autre port
+//   npm run test:quiz                 # port 3000 par défaut
+//   PORT=3993 npm run test:quiz       # autre port
+//
+// Le port passe par l'environnement et non par un argument : `node --test`
+// interprète tout argument supplémentaire comme un fichier de test à charger.
 //
 // Utilise le Chrome installé sur la machine (playwright-core, sans
 // téléchargement de navigateur).
@@ -13,7 +16,7 @@ import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { chromium } from "playwright-core";
 
-const PORT = process.argv[2] && /^\d+$/.test(process.argv[2]) ? process.argv[2] : (process.env.PORT ?? "3000");
+const PORT = process.env.PORT ?? "3000";
 const URL = `http://localhost:${PORT}/apporteur-affaires`;
 
 // Chaque variante nomme ses classes et affiche son compteur différemment.
