@@ -32,10 +32,13 @@ branches de variante (`quiz-actuel`, `quiz-editorial`, `quiz-dashboard`,
 
 ```bash
 npm run build
-npx next start -p 3000     # dans un autre terminal
-npm run test:quiz          # port 3000 par défaut
-npm run test:quiz -- 3993  # autre port
+npx next start -p 3000       # dans un autre terminal
+npm run test:quiz            # port 3000 par défaut
+PORT=3993 npm run test:quiz  # autre port
 ```
+
+Le port passe par l'environnement et non par un argument : `node --test`
+interprète tout argument supplémentaire comme un fichier de test à charger.
 
 Le test **détecte automatiquement la variante servie** d'après le préfixe de ses
 classes CSS (`qz-`, `qm1-`, `qm2-`, `qm3-`) et applique le même jeu de
