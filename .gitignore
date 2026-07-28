@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# design handoff (maquettes & sources, hors dépôt)
+/design_handoff_site_umdeny/
