@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { PageHero, FinalCTA } from "../components/shared";
-import { Pin, Mail, Phone, Arrow } from "../components/icons";
+import { PageHero, FinalCTA } from "@/app/components/shared";
+import { Pin, Mail, Phone, Arrow } from "@/app/components/icons";
 
 type FormState = {
   first: string;

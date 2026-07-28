@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Condensed, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Chrome } from "./components/chrome";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,9 +37,7 @@ export default function RootLayout({
       lang="fr"
       className={`${inter.variable} ${robotoCondensed.variable} ${jetbrainsMono.variable}`}
     >
-      <body>
-        <Chrome>{children}</Chrome>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

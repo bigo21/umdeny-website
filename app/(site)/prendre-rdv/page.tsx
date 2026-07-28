@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { PageHero } from "../components/shared";
-import { Clock, Target, Check, Arrow, Briefcase, Globe, Building } from "../components/icons";
+import { PageHero } from "@/app/components/shared";
+import { Clock, Target, Check, Arrow, Briefcase, Globe, Building } from "@/app/components/icons";
 
 type FormState = {
   first: string;

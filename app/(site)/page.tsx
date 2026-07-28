@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Arrow, Loupe, Network, Shield, Globe } from "./components/icons";
-import { FinalCTA, Transparence } from "./components/shared";
+import { Arrow, Loupe, Network, Shield, Globe } from "@/app/components/icons";
+import { FinalCTA, Transparence } from "@/app/components/shared";
 
 const PILLARS = [
   { icon: <Loupe />, title: "Sélection rigoureuse", body: "Chaque opportunité est analysée, auditée et validée avant d'être proposée. Aucun partenaire n'intègre notre écosystème sans avoir passé notre processus de due diligence." },

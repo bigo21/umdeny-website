@@ -1,5 +1,5 @@
-import { PageHero, FinalCTA, FeeModel } from "../components/shared";
-import { Lock, Doc, Money, Chart, Gear, Shield } from "../components/icons";
+import { PageHero, FinalCTA, FeeModel } from "@/app/components/shared";
+import { Lock, Doc, Money, Chart, Gear, Shield } from "@/app/components/icons";
 
 const ECO = [
   { icon: "🤲", name: "Wemonii", url: "wemonii.com", body: "Plateforme de crowdfunding pour projets africains à impact. Finance l'entrepreneuriat, l'agriculture et l'innovation sur le continent." },

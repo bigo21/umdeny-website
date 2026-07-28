@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Arrow } from "../components/icons";
-import { PageHero, FinalCTA, FeeModel } from "../components/shared";
+import { Arrow } from "@/app/components/icons";
+import { PageHero, FinalCTA, FeeModel } from "@/app/components/shared";
 
 const VEHICLES = [
   {
