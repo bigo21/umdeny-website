@@ -51,3 +51,13 @@ export const Facebook = (p: IconProps) => <Icon {...p}><path d="M18 3h-3a4 4 0 0
 export const Instagram = (p: IconProps) => <Icon {...p}><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></Icon>;
 export const Youtube = (p: IconProps) => <Icon {...p}><rect x="3" y="6" width="18" height="12" rx="2"/><path d="m10 9 5 3-5 3z" fill="currentColor"/></Icon>;
 export const Whatsapp = (p: IconProps) => <Icon {...p}><path d="M3 21l1.5-4A8 8 0 1 1 12 21H3z"/><path d="M9 9c0 3 3 6 6 6 .5 0 1 0 1.5-.5l.5-.5-2-1-1 1c-1 0-3-2-3-3l1-1-1-2-.5.5C9 9 9 9.5 9 9z"/></Icon>;
+
+/* Utilisées par le quiz apporteur d'affaires */
+export const Chat = (p: IconProps) => <Icon {...p}><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/></Icon>;
+export const Tag = (p: IconProps) => <Icon {...p}><path d="M20.59 13.41 12 22l-9-9V4h9z"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></Icon>;
+export const ArrowLeft = (p: IconProps) => <Icon {...p}><path d="M19 12H5M11 5l-7 7 7 7"/></Icon>;
+export const User = (p: IconProps) => <Icon {...p}><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></Icon>;
+export const Compass = (p: IconProps) => <Icon {...p}><circle cx="12" cy="12" r="9"/><path d="m15 9-2 6-6 2 2-6z"/></Icon>;
+export const Flag = (p: IconProps) => <Icon {...p}><path d="M6 3v18M6 4h12l-3 4 3 4H6"/></Icon>;
+export const Send = (p: IconProps) => <Icon {...p}><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></Icon>;
+export const CheckCircle = (p: IconProps) => <Icon {...p}><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9"/></Icon>;
