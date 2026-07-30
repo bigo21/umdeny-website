@@ -199,9 +199,9 @@ describe("Échec d'enregistrement", () => {
     );
 
     await next().click();
-    await page.waitForSelector('[role="alert"]', { timeout: 15000 });
+    await page.waitForSelector('p[role="alert"]', { timeout: 15000 });
 
-    assert.match(await page.locator('[role="alert"]').textContent(), /Enregistrement impossible/);
+    assert.match(await page.locator('p[role="alert"]').textContent(), /Enregistrement impossible/);
     assert.equal(await page.locator(`.${P}-modal`).count(), 0, "aucune confirmation ne doit s'afficher");
     assert.equal(await page.locator(`.${P}-thanks`).count(), 0, "aucun remerciement ne doit s'afficher");
     assert.equal(await next().isDisabled(), false, "le bouton doit redevenir cliquable pour réessayer");
