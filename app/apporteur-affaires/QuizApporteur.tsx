@@ -129,7 +129,7 @@ function ConfirmationModal({ onClose }: { onClose: () => void }) {
 
 export function QuizApporteur({ onSubmit }: { onSubmit?: (payload: QuizPayload) => void }) {
   const quiz = useQuizApporteur({ onSubmit });
-  const { phase, screen, index, total, progress, answers, answered, isLast } = quiz;
+  const { phase, screen, index, total, progress, answers, answered, isLast, submitState, submitError } = quiz;
   const [modalDismissed, setModalDismissed] = useState(false);
   // Dérivé plutôt que synchronisé : la confirmation s'affiche dès la
   // soumission et disparaît une fois fermée, sans effet de bord.
@@ -308,6 +308,23 @@ export function QuizApporteur({ onSubmit }: { onSubmit?: (payload: QuizPayload) 
               </>
             )}
 
+            {submitError && (
+              <p
+                role="alert"
+                style={{
+                  margin: "0 0 16px",
+                  padding: "12px 16px",
+                  background: "#FFF3E0",
+                  borderLeft: "3px solid #B96A00",
+                  color: "#5C3A0A",
+                  fontSize: 13.5,
+                  lineHeight: 1.5,
+                }}
+              >
+                {submitError}
+              </p>
+            )}
+
             <div className="qz-nav">
               <button
                 type="button"
@@ -324,10 +341,10 @@ export function QuizApporteur({ onSubmit }: { onSubmit?: (payload: QuizPayload) 
                 type="button"
                 className="btn btn--gold"
                 onClick={quiz.next}
-                disabled={!answered}
-                style={{ opacity: answered ? 1 : 0.45 }}
+                disabled={!answered || submitState === "sending"}
+                style={{ opacity: answered && submitState !== "sending" ? 1 : 0.45 }}
               >
-                {isLast ? "Envoyer ma candidature" : "Continuer"} <Arrow size={14} />
+                {submitState === "sending" ? "Envoi…" : isLast ? "Envoyer ma candidature" : "Continuer"} <Arrow size={14} />
               </button>
             </div>
           </div>
