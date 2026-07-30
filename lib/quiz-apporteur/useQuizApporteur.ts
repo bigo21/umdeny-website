@@ -9,11 +9,18 @@
 import { useCallback, useMemo, useState } from "react";
 import { buildScreens } from "./data";
 import { computeScore } from "./scoring";
+import { submitCandidature } from "./submitCandidature";
 import type { Answers, QuizPayload, QuizPhase, QuizScreen } from "./types";
 
+/** État de l'envoi : le candidat ne doit pas lire « reçue » si rien n'est parti. */
+export type SubmitState = "idle" | "sending" | "error";
+
 export interface UseQuizApporteurOptions {
-  /** Transport de la candidature (API, webhook CRM…). Non implémenté à ce stade. */
-  onSubmit?: (payload: QuizPayload) => void;
+  /**
+   * Transport de la candidature. Par défaut, POST vers la route API.
+   * Une exception fait basculer en état d'erreur, avec possibilité de réessayer.
+   */
+  onSubmit?: (payload: QuizPayload) => void | Promise<void>;
 }
 
 export function isScreenAnswered(screen: QuizScreen | undefined, answers: Answers): boolean {
@@ -39,6 +46,8 @@ export function useQuizApporteur(options: UseQuizApporteurOptions = {}) {
   const [answers, setAnswers] = useState<Answers>({});
   const [rawIndex, setRawIndex] = useState(0);
   const [phase, setPhase] = useState<QuizPhase>("landing");
+  const [submitState, setSubmitState] = useState<SubmitState>("idle");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // La liste d'écrans dépend des verticales cochées à Q18 : elle est
   // recalculée à chaque changement de réponse, comme dans la version vanilla.
@@ -81,19 +90,34 @@ export function useQuizApporteur(options: UseQuizApporteurOptions = {}) {
     setRawIndex((i) => Math.max(0, i - 1));
   }, []);
 
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     const payload: QuizPayload = {
       answers,
       score: computeScore(answers),
       submittedAt: new Date().toISOString(),
     };
-    onSubmit?.(payload);
-    setPhase("thanks");
-    return payload;
+
+    setSubmitState("sending");
+    setSubmitError(null);
+
+    try {
+      if (onSubmit) await onSubmit(payload);
+      else await submitCandidature(answers);
+      setSubmitState("idle");
+      setPhase("thanks");
+    } catch (error) {
+      // On reste sur le dernier écran : le candidat peut réessayer sans avoir
+      // à refaire le questionnaire.
+      setSubmitState("error");
+      setSubmitError(
+        error instanceof Error ? error.message : "L'envoi de votre candidature a échoué. Merci de réessayer.",
+      );
+    }
   }, [answers, onSubmit]);
 
-  const next = useCallback(() => {
+  const next = useCallback(async () => {
     if (!isScreenAnswered(screen, answers)) return;
+    if (submitState === "sending") return;
 
     // Seule condition d'éligibilité : être majeur. Une réponse « Non » arrête
     // le parcours — candidature non soumise, aucune fiche CRM créée.
@@ -103,12 +127,12 @@ export function useQuizApporteur(options: UseQuizApporteurOptions = {}) {
     }
 
     if (index === total - 1) {
-      submit();
+      await submit();
       return;
     }
 
     setRawIndex(index + 1);
-  }, [screen, answers, index, total, submit]);
+  }, [screen, answers, index, total, submit, submitState]);
 
   return {
     // état
@@ -121,6 +145,9 @@ export function useQuizApporteur(options: UseQuizApporteurOptions = {}) {
     progress,
     answered,
     isLast,
+    // envoi
+    submitState,
+    submitError,
     // navigation
     start,
     next,
