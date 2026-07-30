@@ -34,6 +34,16 @@ export const TAG_PRIORITAIRE = "🟢 PRIORITAIRE";
 export const TAG_A_QUALIFIER = "🟡 À QUALIFIER";
 export const TAG_EN_VEILLE = "⚪ EN VEILLE";
 
+/**
+ * Libellés sans émoji pour la fiche CRM, dont la partie 11 de la spec attend
+ * « Prioritaire / À qualifier / En veille ».
+ */
+export const TAG_PLAIN: Record<string, string> = {
+  [TAG_PRIORITAIRE]: "Prioritaire",
+  [TAG_A_QUALIFIER]: "À qualifier",
+  [TAG_EN_VEILLE]: "En veille",
+};
+
 function asString(value: unknown): string {
   return typeof value === "string" ? value : "";
 }

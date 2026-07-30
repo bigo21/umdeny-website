@@ -4,13 +4,22 @@ Deux jeux de tests, indépendants l'un de l'autre.
 
 ## `npm run test:scoring`
 
-Vérifie le moteur de scoring du quiz apporteur d'affaires contre la spec v2.0
+Deux fichiers, tous deux exécutés par cette commande.
+
+**`scoring.test.ts`** — le moteur de scoring contre la spec v2.0
 (`QUIZ_CANDIDATURE_-_APPORTEUR_D'AFFAIRES_UMDENY.pdf`) : seuils de tag, barème
 géographique propre à IP publique dédiée, primauté du MAX sur la moyenne entre
 verticales, neutralité de la question de maîtrise, longueur du parcours.
 
 Ce score n'est jamais affiché au candidat — une erreur y serait donc invisible
 en usage normal, d'où ces tests.
+
+**`emails.test.ts`** — les deux emails de la partie 10. Vérifie les règles que
+la spec impose et qu'un relecteur ne remarquerait pas : absence de lien Cal.com
+ou WhatsApp dans l'email candidat, absence de score dans l'email candidat,
+présence des 6 sections dans l'email équipe, parcours de formation distinct par
+verticale, transmission intégrale du message libre, et échappement du contenu
+saisi par le candidat.
 
 Tourne sur n'importe quelle branche : le moteur vit dans `lib/quiz-apporteur/`,
 partagé par toutes les variantes.
