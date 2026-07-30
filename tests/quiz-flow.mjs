@@ -149,6 +149,9 @@ describe("Soumission", () => {
   it("affiche une confirmation sans lien ni navigation", async () => {
     // Spec v2.0 partie 12 : message texte seul dans la pop-up.
     await next().click();
+    // L'envoi est asynchrone (enregistrement en base puis emails) : on attend
+    // la confirmation au lieu de la supposer immédiate.
+    await page.waitForSelector(`.${P}-modal`, { timeout: 15000 });
     assert.equal(await page.locator(`.${P}-modal`).count(), 1);
     assert.equal(await page.locator(`.${P}-modal h3`).textContent(), "Votre candidature a bien été reçue.");
     assert.equal(await page.locator(`.${P}-modal a`).count(), 0, "aucun lien");
@@ -168,5 +171,45 @@ describe("Soumission", () => {
       await page.locator(`.${P}-thanks h2`).textContent(),
       "Votre candidature est en cours de traitement.",
     );
+  });
+});
+
+describe("Échec d'enregistrement", () => {
+  it("n'annonce pas « reçue » et laisse réessayer", async () => {
+    // Le candidat ne doit jamais lire que sa candidature est reçue si rien
+    // n'a été enregistré.
+    await startQuiz();
+    await fillIdentity();
+    await next().click();
+    await page.getByText("Oui", { exact: true }).click();
+    await next().click();
+    await answerScreens(12);
+    await page.locator(`.${P}-opt`, { hasText: "Crowdlending" }).click();
+    await next().click(); // intro de la verticale
+    await next().click();
+    await answerScreens(7);
+
+    // On fait échouer la route API.
+    await page.route("**/api/candidature-apporteur", (route) =>
+      route.fulfill({
+        status: 502,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "Enregistrement impossible pour le moment." }),
+      }),
+    );
+
+    await next().click();
+    await page.waitForSelector('[role="alert"]', { timeout: 15000 });
+
+    assert.match(await page.locator('[role="alert"]').textContent(), /Enregistrement impossible/);
+    assert.equal(await page.locator(`.${P}-modal`).count(), 0, "aucune confirmation ne doit s'afficher");
+    assert.equal(await page.locator(`.${P}-thanks`).count(), 0, "aucun remerciement ne doit s'afficher");
+    assert.equal(await next().isDisabled(), false, "le bouton doit redevenir cliquable pour réessayer");
+
+    // Une fois la route rétablie, le nouvel essai aboutit.
+    await page.unroute("**/api/candidature-apporteur");
+    await next().click();
+    await page.waitForSelector(`.${P}-modal`, { timeout: 15000 });
+    assert.equal(await page.locator(`.${P}-modal`).count(), 1);
   });
 });
