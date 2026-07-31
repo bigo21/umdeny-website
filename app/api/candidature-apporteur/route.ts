@@ -1,21 +1,26 @@
 // =====================================================
 // POST /api/candidature-apporteur
-// Reçoit les réponses du quiz, les enregistre, puis notifie.
+// Reçoit les réponses du quiz, les enregistre dans le schéma
+// umdeny_apporteur du Supabase mutualisé, puis notifie via Resend.
 //
-// Le client n'envoie QUE ses réponses : le score et les tags sont recalculés
-// ici. Sinon n'importe qui pourrait se déclarer PRIORITAIRE en modifiant sa
-// requête.
+// Même pattern que quiz-umdeny/app/api/submit : insertion via service_role,
+// emails en Promise.allSettled sans faire échouer la requête, puis mise à
+// jour des drapeaux d'envoi.
+//
+// Le client n'envoie QUE ses réponses : le score et le tag de priorité sont
+// recalculés ici. Sinon n'importe qui pourrait se déclarer PRIORITAIRE en
+// modifiant sa requête.
 // =====================================================
 
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { candidateEmail, TEAM_EMAIL, teamEmail } from "@/lib/emails/candidature-apporteur";
 import { buildCandidature, validateAnswers } from "@/lib/quiz-apporteur/candidature";
-import { createServiceClient } from "@/lib/supabase/server";
+import { APPORTEUR_SCHEMA, CANDIDATURES_TABLE, createServiceClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
-const FROM = process.env.RESEND_FROM ?? "Umdeny Capital <candidatures@umdeny.com>";
+const FROM = process.env.EMAIL_FROM ?? "Umdeny Capital <candidatures@umdeny.com>";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -33,14 +38,15 @@ export async function POST(request: Request) {
   }
 
   const built = buildCandidature(answers as Record<string, string | string[]>);
+  const supabase = createServiceClient();
 
   // --- 1. Persistance : source de vérité.
   // Si elle échoue, on ne raconte pas au candidat que sa candidature est reçue.
   let candidatId: string;
   try {
-    const supabase = createServiceClient();
     const { data, error } = await supabase
-      .from("candidatures_apporteur")
+      .schema(APPORTEUR_SCHEMA)
+      .from(CANDIDATURES_TABLE)
       .insert(built.row)
       .select("candidat_id")
       .single();
@@ -60,50 +66,56 @@ export async function POST(request: Request) {
   // --- 2. Notifications : au mieux.
   // La candidature est déjà sauvegardée ; un échec d'email ne doit pas la
   // faire perdre ni bloquer le candidat.
-  let emailsSent = false;
+  let emailCandidatOk = false;
+  let emailEquipeOk = false;
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
     console.warn("[candidature-apporteur] RESEND_API_KEY absente : aucun email envoyé.");
   } else {
-    try {
-      const resend = new Resend(apiKey);
-      const toCandidate = candidateEmail(built.row.prenom);
-      const toTeam = teamEmail(built);
+    const resend = new Resend(apiKey);
+    const toCandidate = candidateEmail(built.row.prenom);
+    const toTeam = teamEmail(built);
 
-      const results = await Promise.allSettled([
-        resend.emails.send({
-          from: FROM,
-          to: built.row.email,
-          replyTo: TEAM_EMAIL,
-          subject: toCandidate.subject,
-          html: toCandidate.html,
-          text: toCandidate.text,
-        }),
-        resend.emails.send({
-          from: FROM,
-          to: TEAM_EMAIL,
-          replyTo: built.row.email,
-          subject: toTeam.subject,
-          html: toTeam.html,
-          text: toTeam.text,
-        }),
-      ]);
+    const [candidatResult, equipeResult] = await Promise.allSettled([
+      resend.emails.send({
+        from: FROM,
+        to: built.row.email,
+        replyTo: TEAM_EMAIL,
+        subject: toCandidate.subject,
+        html: toCandidate.html,
+        text: toCandidate.text,
+      }),
+      resend.emails.send({
+        from: FROM,
+        to: TEAM_EMAIL,
+        replyTo: built.row.email,
+        subject: toTeam.subject,
+        html: toTeam.html,
+        text: toTeam.text,
+      }),
+    ]);
 
-      results.forEach((result, i) => {
-        const target = i === 0 ? "candidat" : "équipe";
-        if (result.status === "rejected") {
-          console.error(`[candidature-apporteur] email ${target} en échec :`, result.reason);
-        } else if (result.value.error) {
-          console.error(`[candidature-apporteur] email ${target} refusé par Resend :`, result.value.error);
-        }
-      });
+    emailCandidatOk = candidatResult.status === "fulfilled" && !candidatResult.value.error;
+    emailEquipeOk = equipeResult.status === "fulfilled" && !equipeResult.value.error;
 
-      emailsSent = results.every((r) => r.status === "fulfilled" && !r.value.error);
-    } catch (error) {
-      console.error("[candidature-apporteur] échec d'envoi des emails :", error);
+    if (!emailCandidatOk) console.error("[candidature-apporteur] email candidat en échec :", candidatResult);
+    if (!emailEquipeOk) console.error("[candidature-apporteur] email équipe en échec :", equipeResult);
+
+    // Trace en base de ce qui est réellement parti, comme umdeny_quiz.
+    const { error: updateError } = await supabase
+      .schema(APPORTEUR_SCHEMA)
+      .from(CANDIDATURES_TABLE)
+      .update({ email_candidat_envoye: emailCandidatOk, email_equipe_envoye: emailEquipeOk })
+      .eq("candidat_id", candidatId);
+
+    if (updateError) {
+      console.error("[candidature-apporteur] mise à jour des drapeaux d'email en échec :", updateError);
     }
   }
 
-  return NextResponse.json({ ok: true, candidatId, emailsSent }, { status: 201 });
+  return NextResponse.json(
+    { ok: true, candidatId, emailsSent: emailCandidatOk && emailEquipeOk },
+    { status: 201 },
+  );
 }

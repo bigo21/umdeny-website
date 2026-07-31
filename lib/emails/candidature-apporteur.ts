@@ -12,7 +12,8 @@
 import type { BuiltCandidature } from "../quiz-apporteur/candidature";
 import { VERTICALS } from "../quiz-apporteur/data";
 
-const TEAM_EMAIL = "partner@umdeny.com";
+// Destinataire interne. Surchargeable par EMAIL_TEAM, comme dans quiz-umdeny.
+const TEAM_EMAIL = process.env.EMAIL_TEAM ?? "partner@umdeny.com";
 
 /** Échappe le contenu saisi par le candidat avant insertion dans du HTML. */
 function esc(value: string | null | undefined): string {
@@ -155,7 +156,7 @@ export function teamEmail(built: BuiltCandidature): { subject: string; html: str
   ].join("");
 
   // --- Blocs conditionnels, intégralement
-  const conditionnels = Object.entries(r.reponses_conditionnelles)
+  const conditionnels = Object.entries(r.reponses_conditionnelles_json)
     .map(([, v]) => {
       const specific = Array.isArray(v.question_specifique)
         ? escList(v.question_specifique)
@@ -236,7 +237,7 @@ export function teamEmail(built: BuiltCandidature): { subject: string; html: str
     `Q17 Motivation : ${r.motivation ?? "—"}`,
     ``,
     `5. BLOCS CONDITIONNELS`,
-    ...Object.values(r.reponses_conditionnelles).flatMap((v) => [
+    ...Object.values(r.reponses_conditionnelles_json).flatMap((v) => [
       `[${v.label}]`,
       `  Contact : ${v.niveau_contact ?? "—"}`,
       `  Maîtrise : ${v.niveau_maitrise ?? "—"}`,

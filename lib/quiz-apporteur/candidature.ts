@@ -42,20 +42,20 @@ export interface CandidatureRow {
   disponibilite: string | null;
   motivation: string | null;
   verticales_interet: string[];
-  reponses_conditionnelles: Record<string, VerticalAnswers>;
-  maitrise_par_verticale: Record<string, string>;
-  parcours_formation_par_verticale: Record<string, string>;
+  reponses_conditionnelles_json: Record<string, VerticalAnswers>;
+  maitrise_par_verticale_json: Record<string, string>;
+  parcours_formation_par_verticale_json: Record<string, string>;
   score_reseau: number;
   score_experience: number;
   score_disponibilite: number;
-  score_pertinence_par_verticale: Partial<Record<VerticalKey, number>>;
+  score_pertinence_par_verticale_json: Partial<Record<VerticalKey, number>>;
   score_total: number;
   tag_priorite: string;
   signaux_complementaires: string[];
   liens_partages: string | null;
   message_libre: string | null;
   geo_tag: string | null;
-  reponses_completes: Answers;
+  reponses_completes_json: Answers;
 }
 
 function str(answers: Answers, id: string): string | null {
@@ -131,13 +131,13 @@ export function buildCandidature(answers: Answers): BuiltCandidature {
     disponibilite: str(answers, "q16_dispo"),
     motivation: str(answers, "q17_motiv"),
     verticales_interet: list(answers, "q18_pivot"),
-    reponses_conditionnelles: buildConditionalAnswers(answers),
-    maitrise_par_verticale: maitriseByVertical,
-    parcours_formation_par_verticale: parcoursByVertical,
+    reponses_conditionnelles_json: buildConditionalAnswers(answers),
+    maitrise_par_verticale_json: maitriseByVertical,
+    parcours_formation_par_verticale_json: parcoursByVertical,
     score_reseau: score.scoreReseau,
     score_experience: score.scoreExp,
     score_disponibilite: score.scoreDispo,
-    score_pertinence_par_verticale: score.pertinenceDetail,
+    score_pertinence_par_verticale_json: score.pertinenceDetail,
     score_total: score.scoreTotal,
     tag_priorite: TAG_PLAIN[score.tag] ?? "En veille",
     signaux_complementaires: signals,
@@ -145,7 +145,7 @@ export function buildCandidature(answers: Answers): BuiltCandidature {
     message_libre: str(answers, "message"),
     // Le pays de résidence sert de repère géographique dans le CRM.
     geo_tag: str(answers, "q6_geo"),
-    reponses_completes: answers,
+    reponses_completes_json: answers,
   };
 
   return { row, score, signals, formationPaths };
