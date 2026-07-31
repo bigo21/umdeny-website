@@ -38,7 +38,20 @@ export async function POST(request: Request) {
   }
 
   const built = buildCandidature(answers as Record<string, string | string[]>);
-  const supabase = createServiceClient();
+
+  // La création du client lève si la configuration manque. Sans ce garde-fou,
+  // l'exception remonte non capturée et Next répond un 500 vide, impossible à
+  // distinguer d'une panne de base.
+  let supabase;
+  try {
+    supabase = createServiceClient();
+  } catch (error) {
+    console.error("[candidature-apporteur] configuration Supabase absente :", error);
+    return NextResponse.json(
+      { error: "Service indisponible : configuration serveur incomplète." },
+      { status: 503 },
+    );
+  }
 
   // --- 1. Persistance : source de vérité.
   // Si elle échoue, on ne raconte pas au candidat que sa candidature est reçue.
