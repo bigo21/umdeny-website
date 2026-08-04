@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ... sauf le gabarit, qui ne contient aucun secret
+!.env.example
 
 # vercel
 .vercel
@@ -42,3 +44,6 @@ next-env.d.ts
 
 # design handoff (maquettes & sources, hors dépôt)
 /design_handoff_site_umdeny/
+
+# sortie de compilation des tests de scoring
+/.test-build/

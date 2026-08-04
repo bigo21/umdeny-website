@@ -23,9 +23,15 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Tout est intercepté sauf les assets de la page de maintenance elle-même
-  // et les fichiers internes de Next.
+  // Tout est intercepté sauf :
+  //  - les fichiers internes de Next et les assets de la page de maintenance ;
+  //  - le quiz apporteur d'affaires et sa route API. C'est une surface
+  //    autonome, qui doit rester ouverte pendant que le site vitrine est en
+  //    maintenance — comme quizz.umdeny.com pour le quiz patrimonial.
+  //    Sans cette exclusion, /apporteur-affaires rendrait la page de
+  //    maintenance et le POST vers l'API échouerait en 500, la réécriture
+  //    l'envoyant vers un fichier HTML statique.
   matcher: [
-    "/((?!_next/static|_next/image|assets/|maintenance\\.html|favicon\\.ico).*)",
+    "/((?!_next/static|_next/image|assets/|maintenance\\.html|favicon\\.ico|apporteur-affaires|api/candidature-apporteur).*)",
   ],
 };

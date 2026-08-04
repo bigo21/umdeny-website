@@ -1,0 +1,33 @@
+// Compilation isolée des tests Node : les modules de lib/ utilisent des
+// imports sans extension et l'alias @/, que le mode natif de Node ne sait pas
+// résoudre. On les compile donc en CommonJS dans .test-build (ignoré par git)
+// avant de lancer node --test.
+//
+// Ne couvre que du code sans React ni Next : scoring, fiche de candidature,
+// lectures internes, gabarits d'emails.
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": ".test-build",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node"]
+  },
+  "include": [
+    "tests/scoring.test.ts",
+    "tests/emails.test.ts",
+    "lib/quiz-apporteur/data.ts",
+    "lib/quiz-apporteur/scoring.ts",
+    "lib/quiz-apporteur/types.ts",
+    "lib/quiz-apporteur/insights.ts",
+    "lib/quiz-apporteur/candidature.ts",
+    "lib/emails/candidature-apporteur.ts"
+  ]
+}

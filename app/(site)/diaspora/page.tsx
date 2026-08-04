@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
-import { PageHero, FinalCTA } from "../components/shared";
-import { Pin, Chart, Handshake, Check, Arrow } from "../components/icons";
+import { PageHero, FinalCTA } from "@/app/components/shared";
+import { Pin, Chart, Handshake, Check, Arrow } from "@/app/components/icons";
 
 const REALITIES = [
   { icon: "🗺", title: "La distance géographique", body: "Vous ne pouvez pas vous rendre sur place pour visiter un bien, superviser un projet ou rencontrer un partenaire. Chaque décision se prend à distance, avec les risques que cela implique." },

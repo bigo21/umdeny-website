@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { PageHero, FinalCTA } from "../components/shared";
-import { Arrow } from "../components/icons";
+import { PageHero, FinalCTA } from "@/app/components/shared";
+import { Arrow } from "@/app/components/icons";
 
 const CATEGORIES = [
   { id: "all", label: "Tous les articles" },
