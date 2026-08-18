@@ -117,6 +117,7 @@ function Header() {
       <div className="wb-header__brand">
         <Image src="/logo-dark.png" alt="Umdeny Holdings" width={74} height={30} priority />
       </div>
+      <p className="wb-header__titre">Programme apporteurs d&apos;affaires</p>
       <a href="#inscription" className="btn wb-header__cta">
         S&apos;inscrire au webinaire
       </a>
@@ -128,7 +129,6 @@ function Hero() {
   return (
     <section className="wb-hero">
       <div className="wb-hero__inner">
-        <div className="wb-hero__eyebrow">Programme apporteurs d&apos;affaires</div>
         <div className="wb-hero__badge">Campagne de recrutement</div>
         <h1>
           Devenez <em>Apporteur d&apos;Affaires</em> du Groupe Umdeny
