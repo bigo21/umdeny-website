@@ -131,7 +131,7 @@ function Hero() {
       <div className="wb-hero__inner">
         <div className="wb-hero__badge">Campagne de recrutement</div>
         <h1>
-          Devenez <em>Apporteur d&apos;Affaires</em> du Groupe Umdeny
+          Devenez <em>Apporteur d&apos;Affaires</em> chez Umdeny Capital
         </h1>
         <p className="wb-hero__sub">
           Umdeny Capital ouvre son programme de partenariat commercial à toute personne disposant
