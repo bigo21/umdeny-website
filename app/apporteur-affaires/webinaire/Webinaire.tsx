@@ -384,7 +384,7 @@ function Formulaire() {
       <form className="wb-form wb-reveal" onSubmit={envoyer}>
         <div className="wb-form__head">
           <h2>Inscrivez-vous au webinaire</h2>
-          <p>Places limitées. Confirmation envoyée par email après inscription.</p>
+          <p>Complétez le formulaire, vous recevrez le lien de confirmation par email.</p>
         </div>
 
         <div className="wb-field--row">
@@ -463,8 +463,7 @@ function Formulaire() {
             onChange={(e) => modifier("consentementContact", e.target.checked)}
           />
           <span>
-            J&apos;accepte d&apos;être recontacté(e) par l&apos;équipe Umdeny Capital au sujet du
-            programme apporteurs d&apos;affaires.{" "}
+            J&apos;accepte d&apos;être recontacté(e) par l&apos;équipe Umdeny Capital.{" "}
             <span className="wb-optional">(optionnel)</span>
           </span>
         </label>

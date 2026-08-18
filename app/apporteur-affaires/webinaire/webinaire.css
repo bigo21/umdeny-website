@@ -206,12 +206,22 @@
 .wb-form__head { text-align: center; margin-bottom: 32px; }
 .wb-form__head h2 { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 2.6vw, 28px); margin: 0 0 10px; color: var(--navy); }
 .wb-form__head p { font-size: 14px; color: var(--ink-soft); margin: 0; }
-.wb-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+/* « min-width: 0 » est indispensable en grille : sans lui, un élément de
+   grille ne descend pas sous sa largeur min-content, et celle d'un champ est
+   dictée par la largeur intrinsèque de son <input> (attribut size, 20 par
+   défaut, soit 245 px ici). Les deux colonnes de la rangée Prénom/Nom
+   totalisaient alors 506 px dans un conteneur de 462, et le champ Nom
+   débordait vers la droite. */
+.wb-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; min-width: 0; }
 .wb-field--row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .wb-field--row .wb-field { margin-bottom: 0; }
 @media (max-width: 520px) { .wb-field--row { grid-template-columns: 1fr; } }
 .wb-field label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-dark); font-weight: 600; }
 .wb-field input {
+  /* Complément indispensable au min-width ci-dessus : une fois la colonne
+     rétrécie, l'input garderait sinon sa largeur intrinsèque et déborderait
+     de son propre champ. */
+  width: 100%;
   padding: 14px 16px; border: 1px solid var(--rule-light); background: var(--paper);
   font-family: var(--body); font-size: 14.5px; color: var(--ink);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
