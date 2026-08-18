@@ -15,6 +15,7 @@
 // =====================================================
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   ArrowRight,
   Banknote,
@@ -108,12 +109,18 @@ function Header() {
   // Marque volontairement non cliquable : le site vitrine est en maintenance en
   // production, un lien vers « / » enverrait le visiteur sur la page de
   // maintenance au lieu de l'accueil.
+  //
+  // Seul endroit du dépôt qui passe par next/image plutôt qu'un fond CSS : le
+  // fichier source fait 8192 px de large pour 350 Ko, servi ici sur 30 px de
+  // haut. Les autres logos, bien plus légers, ne le justifiaient pas.
   return (
     <header className="wb-header">
       <div className="wb-header__brand">
-        <span className="wb-header__mark" />
-        <span className="wb-header__text">UMDENY CAPITAL</span>
+        <Image src="/logo-dark.png" alt="Umdeny Holdings" width={74} height={30} priority />
       </div>
+      <a href="#inscription" className="btn wb-header__cta">
+        S&apos;inscrire au webinaire
+      </a>
     </header>
   );
 }
@@ -123,9 +130,9 @@ function Hero() {
     <section className="wb-hero">
       <div className="wb-hero__inner">
         <div className="wb-hero__eyebrow">Programme apporteurs d&apos;affaires</div>
+        <div className="wb-hero__badge">Campagne de recrutement</div>
         <h1>
-          Devenez <em>apporteur d&apos;affaires</em> et développez un revenu à la hauteur de votre
-          réseau.
+          Devenez <em>Apporteur d&apos;Affaires</em> du Groupe Umdeny
         </h1>
         <p className="wb-hero__sub">
           Umdeny Capital ouvre son programme de partenariat commercial à toute personne disposant
@@ -133,7 +140,7 @@ function Hero() {
           lors d&apos;un webinaire de présentation en direct.
         </p>
         <a href="#inscription" className="btn btn--gold wb-hero__cta">
-          Je m&apos;inscris au webinaire <ArrowRight size={14} strokeWidth={TRAIT} />
+          Je réserve ma place au webinaire <ArrowRight size={14} strokeWidth={TRAIT} />
         </a>
       </div>
     </section>

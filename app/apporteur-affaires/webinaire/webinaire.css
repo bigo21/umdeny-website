@@ -17,9 +17,17 @@
   border-bottom: 1px solid var(--rule-light);
   background: #fff;
 }
-.wb-header__brand { display: flex; align-items: center; gap: 10px; }
-.wb-header__mark { width: 28px; height: 28px; background: url('/logo-mark.png') center/contain no-repeat; }
-.wb-header__text { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: 0.08em; color: var(--navy); }
+.wb-header__brand { display: flex; align-items: center; }
+.wb-header__brand img { height: 30px; width: auto; }
+/* Contour doré et texte navy, comme la maquette : le bouton doit se lire sur le
+   blanc du header sans lui voler la vedette. Il se remplit au survol. */
+.wb-header__cta { padding: 11px 20px; font-size: 13px; color: var(--navy); border-color: var(--gold); background: transparent; }
+.wb-header__cta:hover { background: var(--gold); color: var(--navy); }
+@media (max-width: 420px) {
+  .wb-header { padding: 14px var(--gutter); }
+  .wb-header__brand img { height: 24px; }
+  .wb-header__cta { padding: 10px 13px; font-size: 12px; }
+}
 
 /* ----- HERO ----- */
 .wb-hero { background: var(--navy-deep); color: #fff; position: relative; overflow: hidden; text-align: center; }
@@ -36,11 +44,26 @@
 }
 @keyframes wbRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 .wb-hero__eyebrow {
-  display: inline-flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
   font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--gold-soft); margin-bottom: 24px;
+  color: var(--gold-soft); margin-bottom: 16px;
 }
 .wb-hero__eyebrow::before, .wb-hero__eyebrow::after { content: ""; width: 26px; height: 1px; background: var(--gold-soft); }
+/* Sous ~620 px le libellé passe sur deux lignes et les filets se retrouvent
+   plaqués aux deux bords de l'écran, loin du texte qu'ils encadrent. */
+@media (max-width: 620px) {
+  .wb-hero__eyebrow::before, .wb-hero__eyebrow::after { display: none; }
+}
+/* Pastille de campagne. Seul arrondi de la page : tout le reste du système
+   Umdeny est à angles droits, y compris les boutons. */
+.wb-hero__badge {
+  display: inline-flex; align-items: center;
+  padding: 9px 22px; margin-bottom: 26px;
+  border: 1px solid rgba(223,181,109,0.45); border-radius: 999px;
+  background: rgba(223,181,109,0.06);
+  font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--gold-soft);
+}
 .wb-hero h1 {
   font-family: var(--display); font-weight: 700;
   font-size: clamp(32px, 5.2vw, 58px); line-height: 1.08; letter-spacing: -0.02em;
