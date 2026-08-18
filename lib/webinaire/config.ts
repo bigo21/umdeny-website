@@ -62,11 +62,23 @@ export function posterDeRepli(url: string): string | null {
  * du visiteur, ce n'est pas un démarrage automatique au chargement.
  * YouTube passe par le domaine « nocookie », qui ne dépose pas de cookie
  * publicitaire tant que la vidéo n'est pas lue.
+ *
+ * `origine` doit être l'origine de la page hôte (window.location.origin).
+ * YouTube la réclame dans sa documentation d'intégration, et son absence est
+ * une cause connue de l'écran « An error occurred. Please try again later.
+ * (Playback ID …) » — le lecteur se charge, puis refuse de démarrer.
+ * Le paramètre est omis si l'origine est inconnue, ce qui n'arrive qu'au
+ * rendu serveur, où l'iframe n'est de toute façon jamais produite.
+ *
+ * `modestbranding` a disparu : YouTube l'ignore depuis 2023.
  */
-export function urlLecteur(video: VideoPresentation): string | null {
+export function urlLecteur(video: VideoPresentation, origine?: string): string | null {
   switch (video.hebergeur) {
-    case "youtube":
-      return `https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1`;
+    case "youtube": {
+      const parametres = new URLSearchParams({ autoplay: "1", rel: "0" });
+      if (origine) parametres.set("origin", origine);
+      return `https://www.youtube-nocookie.com/embed/${video.id}?${parametres}`;
+    }
     case "vimeo":
       return `https://player.vimeo.com/video/${video.id}?autoplay=1`;
     case "fichier":

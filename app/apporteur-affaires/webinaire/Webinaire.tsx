@@ -174,11 +174,18 @@ function SectionVideo({ poster }: { poster: string | null }) {
             // accompagne la vidéo.
             <video className="wb-video__player" src={video.src} poster={video.poster} controls autoPlay />
           ) : (
+            // Attributs alignés sur le code d'intégration officiel de
+            // YouTube. « referrerPolicy » en fait partie : privé de référent,
+            // le lecteur se charge puis refuse de démarrer.
             <iframe
               className="wb-video__player"
-              src={urlLecteur(video) ?? undefined}
+              src={
+                urlLecteur(video, typeof window === "undefined" ? undefined : window.location.origin) ??
+                undefined
+              }
               title="Webinaire apporteurs d'affaires — vidéo de présentation"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
             />
           )}
