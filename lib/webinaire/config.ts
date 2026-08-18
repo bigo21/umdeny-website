@@ -43,7 +43,7 @@ export const WEBINAIRE: ConfigWebinaire = {
   date: null,
   duree: null,
   format: "En direct (Live)",
-  video: null,
+  video: { hebergeur: "youtube", id: "zvX1oLSZ71o" },
 };
 
 /**
