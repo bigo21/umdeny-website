@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { WEBINAIRE } from "@/lib/webinaire/config";
+import { libelleDateWebinaire, WEBINAIRE } from "@/lib/webinaire/config";
 import { resoudrePoster } from "@/lib/webinaire/poster";
 import { Webinaire } from "./Webinaire";
 
@@ -14,5 +14,10 @@ export default async function WebinairePage() {
   // appel réseau. La page étant prérendue, il a lieu à la compilation.
   const poster = await resoudrePoster(WEBINAIRE.video);
 
-  return <Webinaire poster={poster} />;
+  // Le libellé de date est formaté ici, une seule fois, et transmis. Le calculer
+  // aussi côté client exposerait à une divergence d'hydratation, l'ICU de Node
+  // et celle du navigateur ne formatant pas toujours à l'identique.
+  const dateWebinaire = libelleDateWebinaire();
+
+  return <Webinaire poster={poster} dateWebinaire={dateWebinaire} />;
 }

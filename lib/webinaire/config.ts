@@ -14,6 +14,69 @@
 export const A_CONFIRMER = "À confirmer prochainement";
 
 /**
+ * DATE DU PROCHAIN WEBINAIRE — seule valeur à mettre à jour.
+ *
+ * Format ISO 8601 avec fuseau, par exemple "2026-09-17T18:00:00+01:00".
+ *
+ * Une seule constante et non deux : c'est elle qui part dans le champ
+ * `date_webinaire` du payload d'inscription, et c'est d'elle qu'est déduit le
+ * libellé affiché dans l'encart. Deux valeurs tenues à la main finiraient par
+ * diverger, et la divergence serait invisible — l'écran annoncerait une date,
+ * la base en enregistrerait une autre.
+ *
+ * `null` tant que la date n'est pas arrêtée : la ligne « Date » affiche alors
+ * son libellé d'attente, et le champ est omis du payload, où le contrat de
+ * l'Edge Function le déclare optionnel.
+ */
+export const DATE_PROCHAIN_WEBINAIRE: string | null = null;
+
+/** Fuseau du siège, à Yaoundé. Le Cameroun ne pratique pas d'heure d'été. */
+const FUSEAU = "Africa/Douala";
+
+/**
+ * Libellé affiché de la date, déduit de DATE_PROCHAIN_WEBINAIRE.
+ *
+ * À n'appeler que côté serveur — page.tsx le fait et transmet le résultat.
+ * L'ICU de Node et celle du navigateur peuvent formater différemment ; si le
+ * serveur et le client calculaient chacun ce libellé, la différence
+ * provoquerait une erreur d'hydratation.
+ */
+export function libelleDateWebinaire(): string | null {
+  if (!DATE_PROCHAIN_WEBINAIRE) return null;
+
+  const date = new Date(DATE_PROCHAIN_WEBINAIRE);
+  if (Number.isNaN(date.getTime())) {
+    // Une date mal saisie ne doit pas casser la page : on retombe sur le
+    // libellé d'attente, en laissant une trace dans les journaux.
+    console.warn("[webinaire] DATE_PROCHAIN_WEBINAIRE illisible :", DATE_PROCHAIN_WEBINAIRE);
+    return null;
+  }
+
+  const jour = new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: FUSEAU,
+  }).format(date);
+
+  const heure = new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: FUSEAU,
+  })
+    .format(date)
+    .replace(":", "h");
+
+  const decalage =
+    new Intl.DateTimeFormat("fr-FR", { timeZone: FUSEAU, timeZoneName: "shortOffset" })
+      .formatToParts(date)
+      .find((partie) => partie.type === "timeZoneName")?.value ?? "";
+
+  return `${jour.charAt(0).toUpperCase()}${jour.slice(1)} · ${heure}${decalage ? ` (${decalage})` : ""}`;
+}
+
+/**
  * Vidéo de présentation. Le lecteur n'est chargé qu'au clic (voir la façade
  * dans Webinaire.tsx) : tant que le visiteur ne lance pas la lecture, aucune
  * requête ne part vers YouTube ou Vimeo.
@@ -29,8 +92,6 @@ export type VideoPresentation =
   | { hebergeur: "fichier"; src: string; poster?: string };
 
 export interface ConfigWebinaire {
-  /** Date et heure, fuseau compris. Ex. : "Jeudi 12 mars 2026 · 18h00 (GMT+1)". */
-  date: string | null;
   /** Ex. : "45 minutes". */
   duree: string | null;
   /** Ex. : "En direct (Live)". */
@@ -40,7 +101,6 @@ export interface ConfigWebinaire {
 }
 
 export const WEBINAIRE: ConfigWebinaire = {
-  date: null,
   duree: "Environ 60 minutes",
   format: "En ligne (visioconférence)",
   video: null,

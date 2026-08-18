@@ -31,7 +31,10 @@ export const config = {
   //    Sans cette exclusion, /apporteur-affaires rendrait la page de
   //    maintenance et le POST vers l'API échouerait en 500, la réécriture
   //    l'envoyant vers un fichier HTML statique.
+  //  - la route d'inscription au webinaire, pour la même raison. Le préfixe
+  //    « apporteur-affaires » couvre déjà la page /apporteur-affaires/webinaire,
+  //    mais sa route API vit sous /api et doit être citée à part.
   matcher: [
-    "/((?!_next/static|_next/image|assets/|maintenance\\.html|favicon\\.ico|apporteur-affaires|api/candidature-apporteur).*)",
+    "/((?!_next/static|_next/image|assets/|maintenance\\.html|favicon\\.ico|apporteur-affaires|api/candidature-apporteur|api/inscription-webinaire).*)",
   ],
 };

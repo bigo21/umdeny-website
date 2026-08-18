@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { A_CONFIRMER, LIENS_LEGAUX, posterDeRepli, urlLecteur, WEBINAIRE } from "@/lib/webinaire/config";
 import { submitInscription } from "@/lib/webinaire/submitInscription";
+import { capterTracking, type Tracking } from "@/lib/webinaire/tracking";
 import type { Inscription } from "@/lib/webinaire/types";
 import "./webinaire.css";
 
@@ -299,7 +300,7 @@ function LigneMeta({
   );
 }
 
-function Session() {
+function Session({ dateWebinaire }: { dateWebinaire: string | null }) {
   return (
     <section className="wb-session">
       <div className="wb-session__inner wb-reveal">
@@ -312,7 +313,7 @@ function Session() {
           </p>
         </div>
         <div className="wb-session__meta">
-          <LigneMeta Icone={CalendarDays} label="Date" valeur={WEBINAIRE.date} />
+          <LigneMeta Icone={CalendarDays} label="Date" valeur={dateWebinaire} />
           <LigneMeta Icone={Radio} label="Format" valeur={WEBINAIRE.format} />
           <LigneMeta Icone={Hourglass} label="Durée" valeur={WEBINAIRE.duree} />
         </div>
@@ -334,7 +335,17 @@ function Formulaire() {
   const [inscription, setInscription] = useState<Inscription>(INSCRIPTION_VIDE);
   const [envoi, setEnvoi] = useState(false);
   const [succes, setSucces] = useState(false);
+  const [emailEnvoye, setEmailEnvoye] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
+  // Capté au premier rendu client et figé pour la vie du composant : lu
+  // seulement au moment de l'envoi, il aurait déjà pu disparaître si les
+  // paramètres de l'URL avaient été nettoyés entre-temps.
+  //
+  // Initialisation paresseuse et non useEffect : la valeur est prête dès le
+  // premier rendu, sans déclencher de rendu supplémentaire. Rien ne l'affiche,
+  // donc l'écart avec le rendu serveur — où window n'existe pas et où la
+  // capture renvoie un objet vide — est sans conséquence sur l'hydratation.
+  const [tracking] = useState<Tracking>(capterTracking);
 
   function modifier<C extends keyof Inscription>(champ: C, valeur: Inscription[C]) {
     setInscription((precedent) => ({ ...precedent, [champ]: valeur }));
@@ -347,7 +358,8 @@ function Formulaire() {
     setEnvoi(true);
     setErreur(null);
     try {
-      await submitInscription(inscription);
+      const resultat = await submitInscription(inscription, tracking);
+      setEmailEnvoye(resultat.emailConfirmationEnvoye);
       setSucces(true);
     } catch (cause) {
       // Le message vient du serveur quand il en fournit un : il est rédigé pour
@@ -369,11 +381,22 @@ function Formulaire() {
           <div className="wb-done__icn">
             <CircleCheck size={32} strokeWidth={TRAIT} />
           </div>
-          <h2>Votre inscription est enregistrée.</h2>
-          <p>
-            Merci {inscription.prenom}. Vous recevrez le lien de connexion au webinaire par email,
-            à l&apos;adresse {inscription.email}. Pensez à vérifier vos indésirables.
-          </p>
+          <h2>Inscription confirmée.</h2>
+          {emailEnvoye ? (
+            <p>
+              Merci {inscription.prenom}. Vous allez recevoir un email de confirmation à
+              l&apos;adresse {inscription.email}. Pensez à vérifier vos indésirables.
+            </p>
+          ) : (
+            // L'inscription est bien enregistrée, mais l'email n'a pas pu
+            // partir : le dire plutôt que d'annoncer un message qui n'arrivera
+            // pas, et éviter au visiteur de se réinscrire pour rien.
+            <p>
+              Merci {inscription.prenom}, votre place est réservée. L&apos;email de confirmation
+              n&apos;a pas pu être envoyé à l&apos;adresse {inscription.email} : notre équipe vous
+              recontactera avec le lien de connexion.
+            </p>
+          )}
         </div>
       </section>
     );
@@ -511,7 +534,13 @@ function Footer() {
   );
 }
 
-export function Webinaire({ poster }: { poster: string | null }) {
+export function Webinaire({
+  poster,
+  dateWebinaire,
+}: {
+  poster: string | null;
+  dateWebinaire: string | null;
+}) {
   useRevelationAuDefilement();
 
   return (
@@ -521,7 +550,7 @@ export function Webinaire({ poster }: { poster: string | null }) {
         <Hero />
         <SectionVideo poster={poster} />
         <Avantages />
-        <Session />
+        <Session dateWebinaire={dateWebinaire} />
         <Formulaire />
       </main>
       <Footer />

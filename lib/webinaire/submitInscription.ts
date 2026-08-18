@@ -1,42 +1,51 @@
-// Envoi de l'inscription au webinaire vers la route API.
+// Envoi de l'inscription au webinaire, via le relais interne.
 //
-// ─────────────────────────────────────────────────────────────────────────────
-// POINT DE RACCORDEMENT — la route et sa table Supabase n'existent pas encore.
+// La page ne parle jamais directement à Supabase : elle poste sur
+// /api/inscription-webinaire, qui transmet à l'Edge Function
+// « inscription-webinaire » avec la clé anon.
 //
-// Tant que ce n'est pas le cas, un POST partirait bel et bien et recevrait un
-// 404 que le visiteur lirait comme une panne. On refuse donc franchement, avec
-// un message qui a du sens pour lui, plutôt que d'afficher une confirmation
-// mensongère alors que rien n'est enregistré.
+// Ce détour vaut deux choses. La clé reste côté serveur, ce qui évite
+// d'introduire la première variable NEXT_PUBLIC_ du dépôt pour une valeur qui
+// n'a pas besoin d'être publique ici. Et l'URL de la fonction, comme le format
+// exact de son contrat, ne fuient pas dans le paquet servi au navigateur.
 //
-// Pour brancher la persistance : créer POST /api/inscription-webinaire sur le
-// modèle de app/api/candidature-apporteur/route.ts (insertion service_role dans
-// le schéma umdeny_apporteur, emails Resend en best-effort), puis passer
-// ROUTE_DISPONIBLE à true. Le reste de cette fonction est déjà écrit.
-// ─────────────────────────────────────────────────────────────────────────────
+// L'écriture en base, l'email de confirmation et l'ajout du contact dans Brevo
+// sont le rôle exclusif de l'Edge Function : rien de tout cela n'est reproduit
+// ici ni dans le relais.
 
 import type { Inscription } from "./types";
+import type { Tracking } from "./tracking";
 
 export const INSCRIPTION_ENDPOINT = "/api/inscription-webinaire";
 
-// L'annotation `: boolean` est délibérée : sans elle TypeScript déduit le type
-// littéral `false` et signale tout ce qui suit le `throw` comme du code mort.
-const ROUTE_DISPONIBLE: boolean = false;
+export interface ResultatInscription {
+  /**
+   * Faux lorsque l'inscription est bien enregistrée mais que l'email de
+   * confirmation n'a pas pu partir. L'écran de succès le dit alors, plutôt que
+   * de promettre un email qui n'arrivera pas.
+   */
+  emailConfirmationEnvoye: boolean;
+}
 
-export async function submitInscription(inscription: Inscription): Promise<void> {
-  if (!ROUTE_DISPONIBLE) {
-    throw new Error(
-      "Les inscriptions en ligne ne sont pas encore ouvertes. Merci de réessayer dans quelques jours.",
-    );
-  }
-
-  const response = await fetch(INSCRIPTION_ENDPOINT, {
+export async function submitInscription(
+  inscription: Inscription,
+  tracking: Tracking,
+): Promise<ResultatInscription> {
+  const reponse = await fetch(INSCRIPTION_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ inscription }),
+    body: JSON.stringify({ inscription, tracking }),
   });
 
-  if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as { error?: string } | null;
-    throw new Error(body?.error ?? "L'envoi de votre inscription a échoué. Merci de réessayer.");
+  const corps = (await reponse.json().catch(() => null)) as
+    | { error?: string; emailConfirmationEnvoye?: boolean }
+    | null;
+
+  if (!reponse.ok) {
+    throw new Error(corps?.error ?? "L'envoi de votre inscription a échoué. Merci de réessayer.");
   }
+
+  // Absence du drapeau traitée comme un envoi réussi : le message nuancé n'a de
+  // sens que si l'échec est explicitement rapporté.
+  return { emailConfirmationEnvoye: corps?.emailConfirmationEnvoye !== false };
 }
