@@ -155,10 +155,10 @@ function SectionVideo() {
     <section className="wb-video wb-reveal">
       <div className="wb-video__head">
         <div className="eyebrow no-rule" style={{ justifyContent: "center", marginBottom: 14 }}>
-          Présentation
+          L&apos;opportunité en vidéo
         </div>
         <h2 className="h3" style={{ margin: 0 }}>
-          Comprenez l&apos;opportunité en 2 minutes.
+          Comprenez l&apos;opportunité en quelques minutes.
         </h2>
       </div>
 
@@ -197,12 +197,13 @@ function SectionVideo() {
             // eslint-disable-next-line @next/next/no-img-element
             <img className="wb-video__poster" src={video.poster} alt="" />
           ) : null}
-          <span className="wb-video__play">
-            <Play size={26} strokeWidth={TRAIT} fill="currentColor" />
-          </span>
-          <span className="wb-video__caption">
-            <strong>{video ? "Vidéo de présentation" : "[ Vidéo · à fournir ]"}</strong>
-            Présentation du programme · 16:9
+          <span className="wb-video__center">
+            <span className="wb-video__play">
+              <Play size={26} strokeWidth={TRAIT} fill="currentColor" />
+            </span>
+            {video ? null : (
+              <span className="wb-video__soon">Vidéo de présentation — bientôt disponible</span>
+            )}
           </span>
         </button>
       )}
