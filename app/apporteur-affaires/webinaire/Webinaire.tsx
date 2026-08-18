@@ -30,7 +30,7 @@ import {
   TriangleAlert,
   Users,
 } from "lucide-react";
-import { A_CONFIRMER, LIENS_LEGAUX, urlLecteur, WEBINAIRE } from "@/lib/webinaire/config";
+import { A_CONFIRMER, LIENS_LEGAUX, posterDeRepli, urlLecteur, WEBINAIRE } from "@/lib/webinaire/config";
 import { submitInscription } from "@/lib/webinaire/submitInscription";
 import type { Inscription } from "@/lib/webinaire/types";
 import "./webinaire.css";
@@ -147,9 +147,14 @@ function Hero() {
   );
 }
 
-function SectionVideo() {
+function SectionVideo({ poster }: { poster: string | null }) {
   const [lecture, setLecture] = useState(false);
   const video = WEBINAIRE.video;
+  // Un fichier hébergé par nous et sans poster n'a pas d'image à afficher :
+  // c'est le navigateur qui peint sa première image, via une balise <video>
+  // muette servant de couverture.
+  const couvertureFichier = !poster && video?.hebergeur === "fichier";
+  const illustre = Boolean(poster) || couvertureFichier;
 
   return (
     <section className="wb-video wb-reveal">
@@ -181,7 +186,7 @@ function SectionVideo() {
       ) : (
         <button
           type="button"
-          className="wb-video__frame"
+          className={"wb-video__frame" + (illustre ? " wb-video__frame--illustre" : "")}
           onClick={() => setLecture(true)}
           disabled={!video}
           aria-label={
@@ -190,12 +195,37 @@ function SectionVideo() {
               : "Vidéo de présentation — pas encore disponible"
           }
         >
-          {video?.hebergeur === "fichier" && video.poster ? (
-            // Image de couverture purement décorative, déjà dimensionnée par le
-            // ratio 16/9 du cadre. next/image exige des dimensions connues à la
-            // compilation, que cette source configurable n'a pas.
+          {poster ? (
+            // Couverture purement décorative, déjà dimensionnée par le ratio
+            // 16/9 du cadre. next/image est écarté ici : il exige des
+            // dimensions connues à la compilation, et l'hébergeur de la
+            // vignette change avec la configuration.
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="wb-video__poster" src={video.poster} alt="" />
+            <img
+              className="wb-video__poster"
+              src={poster}
+              alt=""
+              onError={(evenement) => {
+                // Vignette YouTube en pleine définition absente : hqdefault
+                // existe toujours. posterDeRepli renvoie null au second échec,
+                // ce qui coupe court à toute boucle de rechargement.
+                const repli = posterDeRepli(evenement.currentTarget.src);
+                if (repli) evenement.currentTarget.src = repli;
+              }}
+            />
+          ) : null}
+          {couvertureFichier && video?.hebergeur === "fichier" ? (
+            // « #t=0.1 » demande au navigateur de se positionner juste après le
+            // début : sans cela certains ne peignent aucune image avant lecture.
+            <video
+              className="wb-video__poster"
+              src={`${video.src}#t=0.1`}
+              preload="metadata"
+              muted
+              playsInline
+              tabIndex={-1}
+              aria-hidden="true"
+            />
           ) : null}
           <span className="wb-video__center">
             <span className="wb-video__play">
@@ -471,7 +501,7 @@ function Footer() {
   );
 }
 
-export function Webinaire() {
+export function Webinaire({ poster }: { poster: string | null }) {
   useRevelationAuDefilement();
 
   return (
@@ -479,7 +509,7 @@ export function Webinaire() {
       <Header />
       <main>
         <Hero />
-        <SectionVideo />
+        <SectionVideo poster={poster} />
         <Avantages />
         <Session />
         <Formulaire />

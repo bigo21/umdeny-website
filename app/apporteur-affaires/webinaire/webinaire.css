@@ -102,6 +102,12 @@
   background-image: repeating-linear-gradient(45deg, transparent 0 20px, rgba(223,181,109,0.08) 20px 21px);
 }
 .wb-video__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+/* Voile navy sur la couverture : sans lui, le bouton doré se perd sur les
+   vignettes claires, et les rayures du fond transparaissent au travers. */
+.wb-video__frame--illustre::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(4,11,48,0.30) 0%, rgba(4,11,48,0.58) 100%);
+}
 .wb-video__center {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2;
   display: flex; flex-direction: column; align-items: center; gap: 26px;

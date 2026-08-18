@@ -18,9 +18,14 @@ export const A_CONFIRMER = "À confirmer";
  * dans Webinaire.tsx) : tant que le visiteur ne lance pas la lecture, aucune
  * requête ne part vers YouTube ou Vimeo.
  */
+/**
+ * `poster` est facultatif partout : la couverture est résolue automatiquement
+ * quand la source le permet (voir poster.ts). Ne le renseigner que pour imposer
+ * une image précise, ou pour un fichier hébergé par nous.
+ */
 export type VideoPresentation =
-  | { hebergeur: "youtube"; id: string }
-  | { hebergeur: "vimeo"; id: string }
+  | { hebergeur: "youtube"; id: string; poster?: string }
+  | { hebergeur: "vimeo"; id: string; poster?: string }
   | { hebergeur: "fichier"; src: string; poster?: string };
 
 export interface ConfigWebinaire {
@@ -40,6 +45,15 @@ export const WEBINAIRE: ConfigWebinaire = {
   format: "En direct (Live)",
   video: null,
 };
+
+/**
+ * Toutes les vidéos YouTube n'ont pas de vignette en pleine définition, alors
+ * que hqdefault existe toujours. Renvoie `null` dès qu'il n'y a plus de repli
+ * à tenter, ce qui empêche la boucle de rechargement côté navigateur.
+ */
+export function posterDeRepli(url: string): string | null {
+  return url.includes("/maxresdefault.jpg") ? url.replace("/maxresdefault.jpg", "/hqdefault.jpg") : null;
+}
 
 /**
  * URL d'intégration du lecteur, construite au moment du clic.
