@@ -109,13 +109,13 @@ function Header() {
   // production, un lien vers « / » enverrait le visiteur sur la page de
   // maintenance au lieu de l'accueil.
   //
-  // Seul endroit du dépôt qui passe par next/image plutôt qu'un fond CSS : le
-  // fichier source fait 8192 px de large pour 350 Ko, servi ici sur 30 px de
-  // haut. Les autres logos, bien plus légers, ne le justifiaient pas.
+  // Passe par next/image plutôt qu'un fond CSS, contrairement aux autres logos
+  // du dépôt : le fichier source fait 4000 px de large et n'est servi que sur
+  // 30 px de haut.
   return (
     <header className="wb-header">
       <div className="wb-header__brand">
-        <Image src="/logo-dark.png" alt="Umdeny Holdings" width={74} height={30} priority />
+        <Image src="/logo-dark.png" alt="Umdeny Capital" width={74} height={30} priority />
       </div>
       <p className="wb-header__titre">Programme apporteurs d&apos;affaires</p>
       <a href="#inscription" className="btn wb-header__cta">
@@ -490,10 +490,10 @@ function Footer() {
   return (
     <footer className="wb-footer">
       {/* Variante claire du logo de l'en-tête : sur le navy du pied de page, le
-          lettrage du fichier d'origine, lui-même navy, serait invisible. */}
+          lettrage de logo-dark.png, lui-même navy, serait invisible. */}
       <Image
-        src="/logo-holdings-light.png"
-        alt="Umdeny Holdings"
+        src="/logo-light.png"
+        alt="Umdeny Capital"
         width={99}
         height={40}
         className="wb-footer__logo"
