@@ -462,10 +462,7 @@ function Formulaire() {
             checked={inscription.consentementContact}
             onChange={(e) => modifier("consentementContact", e.target.checked)}
           />
-          <span>
-            J&apos;accepte d&apos;être recontacté(e) par l&apos;équipe Umdeny Capital.{" "}
-            <span className="wb-optional">(optionnel)</span>
-          </span>
+          <span>J&apos;accepte d&apos;être recontacté(e) par l&apos;équipe Umdeny Capital.</span>
         </label>
 
         {erreur ? (
@@ -492,16 +489,24 @@ function Formulaire() {
 function Footer() {
   return (
     <footer className="wb-footer">
-      <strong>Umdeny Capital</strong>
-      © 2019–2026 Umdeny Capital. Tous droits réservés. Une entité du groupe Umdeny Holdings, basée
-      à Yaoundé, Cameroun.
-      <br />
-      {LIENS_LEGAUX.map(({ label, href }, index) => (
-        <span key={label}>
-          {index > 0 ? " · " : null}
-          {href ? <a href={href}>{label}</a> : label}
-        </span>
-      ))}
+      {/* Variante claire du logo de l'en-tête : sur le navy du pied de page, le
+          lettrage du fichier d'origine, lui-même navy, serait invisible. */}
+      <Image
+        src="/logo-holdings-light.png"
+        alt="Umdeny Holdings"
+        width={99}
+        height={40}
+        className="wb-footer__logo"
+      />
+      <p className="wb-footer__legal">© 2026 Umdeny Holdings — Tous droits réservés.</p>
+      <p className="wb-footer__liens">
+        {LIENS_LEGAUX.map(({ label, href }, index) => (
+          <span key={label}>
+            {index > 0 ? <span className="wb-footer__separateur"> · </span> : null}
+            {href ? <a href={href}>{label}</a> : label}
+          </span>
+        ))}
+      </p>
     </footer>
   );
 }

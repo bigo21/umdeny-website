@@ -82,6 +82,12 @@
 .wb-hero__cta:hover { transform: translateY(-2px); box-shadow: 0 24px 48px -16px rgba(223,181,109,0.7); }
 .wb-hero__cta svg { transition: transform 0.2s ease; }
 .wb-hero__cta:hover svg { transform: translateX(4px); }
+/* .btn impose « white-space: nowrap ». Sous 360 px, « Je réserve ma place au
+   webinaire » réclame 311 px alors que la colonne n'en offre que 280, et le
+   bouton dépassait à droite. On l'autorise à passer sur deux lignes. */
+@media (max-width: 360px) {
+  .wb-hero__cta { white-space: normal; text-align: center; }
+}
 
 /* ----- VIDÉO ----- */
 .wb-video { padding: clamp(48px, 7vw, 88px) var(--gutter); max-width: 900px; margin: 0 auto; }
@@ -264,10 +270,24 @@
 .wb-reveal.is-visible { opacity: 1; transform: translateY(0); }
 
 /* ----- FOOTER ----- */
-.wb-footer { padding: 32px var(--gutter); text-align: center; background: var(--navy); color: rgba(255,255,255,0.55); font-size: 11.5px; line-height: 1.7; }
-.wb-footer strong { color: var(--gold-soft); letter-spacing: 0.14em; text-transform: uppercase; display: block; margin-bottom: 8px; font-size: 10.5px; }
+.wb-footer {
+  padding: 36px var(--gutter); text-align: center;
+  background: var(--navy); color: rgba(255,255,255,0.55);
+  font-size: 11.5px; line-height: 1.7;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.wb-footer__logo { height: 40px; width: auto; }
+.wb-footer__legal, .wb-footer__liens { margin: 0; }
+/* Les liens légaux passent à la ligne un par un sur mobile ; le point médian
+   qui les sépare ne doit alors pas se retrouver en tête de ligne. */
+.wb-footer__liens { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 4px; }
 .wb-footer a { color: rgba(255,255,255,0.7); }
 .wb-footer a:hover { color: var(--gold-soft); }
+@media (max-width: 420px) {
+  .wb-footer__logo { height: 32px; }
+  .wb-footer__separateur { display: none; }
+  .wb-footer__liens { flex-direction: column; gap: 6px; }
+}
 
 /* ----- ANIMATIONS RÉDUITES -----
    Le halo du hero, le pulse du bouton de lecture et la révélation au
