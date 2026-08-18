@@ -307,8 +307,8 @@ function Session() {
           <div className="wb-session__eyebrow">Webinaire de présentation</div>
           <h2>Assistez à une session en direct, posez vos questions.</h2>
           <p>
-            Un format court et interactif pour découvrir en détail le fonctionnement du programme,
-            les conditions de partenariat et répondre à vos questions en direct.
+            Une session animée par nos équipes : présentation du groupe, des offres et du modèle de
+            rémunération, suivie d&apos;une séance de questions-réponses.
           </p>
         </div>
         <div className="wb-session__meta">

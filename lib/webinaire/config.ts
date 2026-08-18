@@ -11,7 +11,7 @@
 // =====================================================
 
 /** Affiché à la place d'une valeur encore absente de la configuration. */
-export const A_CONFIRMER = "À confirmer";
+export const A_CONFIRMER = "À confirmer prochainement";
 
 /**
  * Vidéo de présentation. Le lecteur n'est chargé qu'au clic (voir la façade
@@ -41,8 +41,8 @@ export interface ConfigWebinaire {
 
 export const WEBINAIRE: ConfigWebinaire = {
   date: null,
-  duree: null,
-  format: "En direct (Live)",
+  duree: "Environ 60 minutes",
+  format: "En ligne (visioconférence)",
   video: null,
 };
 
