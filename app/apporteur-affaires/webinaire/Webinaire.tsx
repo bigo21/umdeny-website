@@ -44,8 +44,7 @@ const AVANTAGES = [
   {
     Icone: Banknote,
     titre: "Rémunération attractive",
-    texte:
-      "Une commission compétitive sur chaque opportunité concrétisée, versée selon des modalités claires et contractualisées.",
+    texte: "Une commission claire sur chaque affaire concrétisée, sans plafond de revenus.",
   },
   {
     Icone: Clock,
