@@ -13,50 +13,31 @@
 /** Affiché à la place d'une valeur encore absente de la configuration. */
 export const A_CONFIRMER = "À confirmer prochainement";
 
-/**
- * DATE DU PROCHAIN WEBINAIRE — seule valeur à mettre à jour.
- *
- * Format ISO 8601 avec fuseau, par exemple "2026-09-17T18:00:00+01:00".
- *
- * Une seule constante et non deux : c'est elle qui part dans le champ
- * `date_webinaire` du payload d'inscription, et c'est d'elle qu'est déduit le
- * libellé affiché dans l'encart. Deux valeurs tenues à la main finiraient par
- * diverger, et la divergence serait invisible — l'écran annoncerait une date,
- * la base en enregistrerait une autre.
- *
- * `null` tant que la date n'est pas arrêtée : la ligne « Date » affiche alors
- * son libellé d'attente, et le champ est omis du payload, où le contrat de
- * l'Edge Function le déclare optionnel.
- *
- * ATTENTION — à confirmer AVANT l'ouverture du formulaire. Cette valeur est
- * recopiée dans chaque inscription au moment où elle est enregistrée, et c'est
- * la copie en base, non cette constante, que lisent les rappels J-1 et H-1.
- * La modifier plus tard ne rattrape donc pas les inscriptions déjà prises :
- * elles garderont l'ancienne date et leurs rappels partiront à la mauvaise
- * heure. Il faudrait alors un UPDATE des lignes existantes, à demander à
- * l'équipe backend.
- */
-export const DATE_PROCHAIN_WEBINAIRE: string | null = null;
-
 /** Fuseau du siège, à Yaoundé. Le Cameroun ne pratique pas d'heure d'été. */
 const FUSEAU = "Africa/Douala";
 
 /**
- * Libellé affiché de la date, déduit de DATE_PROCHAIN_WEBINAIRE.
+ * Libellé affiché de la date, à partir de l'ISO 8601 renvoyé par l'Edge
+ * Function. Rend `null` quand la date est inconnue : la ligne affiche alors son
+ * libellé d'attente.
+ *
+ * Toujours rendu dans le fuseau du siège, quel que soit le décalage porté par
+ * la valeur d'entrée : une session enregistrée en UTC doit s'afficher à l'heure
+ * de Yaoundé, pas à celle du serveur qui l'a écrite.
  *
  * À n'appeler que côté serveur — page.tsx le fait et transmet le résultat.
  * L'ICU de Node et celle du navigateur peuvent formater différemment ; si le
  * serveur et le client calculaient chacun ce libellé, la différence
  * provoquerait une erreur d'hydratation.
  */
-export function libelleDateWebinaire(): string | null {
-  if (!DATE_PROCHAIN_WEBINAIRE) return null;
+export function libelleDateWebinaire(iso: string | null): string | null {
+  if (!iso) return null;
 
-  const date = new Date(DATE_PROCHAIN_WEBINAIRE);
+  const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
-    // Une date mal saisie ne doit pas casser la page : on retombe sur le
+    // Une date illisible ne doit pas casser la page : on retombe sur le
     // libellé d'attente, en laissant une trace dans les journaux.
-    console.warn("[webinaire] DATE_PROCHAIN_WEBINAIRE illisible :", DATE_PROCHAIN_WEBINAIRE);
+    console.warn("[webinaire] date de webinaire illisible :", iso);
     return null;
   }
 

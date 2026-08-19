@@ -16,7 +16,6 @@
 // =====================================================
 
 import { NextResponse } from "next/server";
-import { DATE_PROCHAIN_WEBINAIRE } from "@/lib/webinaire/config";
 
 export const runtime = "nodejs";
 
@@ -86,9 +85,14 @@ export async function POST(requete: Request) {
 
   const telephone = telephoneCompact(inscription?.telephone);
 
-  // Passage en snake_case, la casse du contrat. `date_webinaire` et
-  // `telephone` sont optionnels : on les omet plutôt que d'envoyer null, pour
-  // ne pas écrire une valeur vide en base.
+  // Passage en snake_case, la casse du contrat. `telephone` est optionnel : on
+  // l'omet plutôt que d'envoyer null, pour ne pas écrire une valeur vide en
+  // base.
+  //
+  // Ni `date_webinaire` ni `webinaire_id` ne sont transmis : l'Edge Function
+  // résout la session elle-même. Un identifiant venu du client devrait de toute
+  // façon être validé côté serveur, et une date changée entre le rendu de la
+  // page et la soumission rattacherait l'inscrit à une session périmée.
   const charge: Record<string, unknown> = {
     prenom,
     nom,
@@ -98,7 +102,6 @@ export async function POST(requete: Request) {
     tracking: trackingAssaini(recu?.tracking),
   };
   if (telephone) charge.telephone = telephone;
-  if (DATE_PROCHAIN_WEBINAIRE) charge.date_webinaire = DATE_PROCHAIN_WEBINAIRE;
 
   let reponse: Response;
   try {
