@@ -35,7 +35,7 @@ condition des 18 ans qui interrompt sans soumettre, reconstruction dynamique des
 écrans selon la question pivot Q18, décochage d'une verticale, bloc
 conditionnel, soumission, et absence de toute fuite de score côté candidat.
 
-**Nécessite la route `/apporteur-affaires`** : ne tourne donc que sur les
+**Nécessite la route `/apporteur-affaires/candidature`** : ne tourne donc que sur les
 branches de variante (`quiz-actuel`, `quiz-editorial`, `quiz-dashboard`,
 `quiz-cards`), pas sur `develop`.
 

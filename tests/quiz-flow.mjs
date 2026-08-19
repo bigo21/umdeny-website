@@ -17,7 +17,7 @@ import { after, before, describe, it } from "node:test";
 import { chromium } from "playwright-core";
 
 const PORT = process.env.PORT ?? "3000";
-const URL = `http://localhost:${PORT}/apporteur-affaires`;
+const URL = `http://localhost:${PORT}/apporteur-affaires/candidature`;
 
 // Chaque variante nomme ses classes et affiche son compteur différemment.
 const VARIANTS = {

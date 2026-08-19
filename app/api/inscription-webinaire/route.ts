@@ -161,7 +161,14 @@ export async function POST(requete: Request) {
 
   if (corps?.ajout_segment_brevo === false) {
     // N'affecte pas le visiteur, mais l'équipe marketing doit pouvoir le voir.
-    console.warn("[inscription-webinaire] contact non ajouté au segment Brevo.");
+    // La réponse complète est jointe : le contrat ne prévoit pas de champ
+    // d'erreur pour Brevo, donc le seul indice exploitable est ce que la
+    // fonction a bien voulu renvoyer. Elle ne contient que l'identifiant de
+    // l'inscription et des drapeaux, rien de personnel.
+    console.warn(
+      "[inscription-webinaire] contact non ajouté au segment Brevo. Réponse de la fonction :",
+      JSON.stringify(corps),
+    );
   }
 
   return NextResponse.json(

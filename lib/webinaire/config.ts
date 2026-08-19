@@ -28,7 +28,7 @@ export const A_CONFIRMER = "À confirmer prochainement";
  * son libellé d'attente, et le champ est omis du payload, où le contrat de
  * l'Edge Function le déclare optionnel.
  */
-export const DATE_PROCHAIN_WEBINAIRE: string | null = null;
+export const DATE_PROCHAIN_WEBINAIRE: string | null = "2026-08-20T18:00:00+01:00";
 
 /** Fuseau du siège, à Yaoundé. Le Cameroun ne pratique pas d'heure d'été. */
 const FUSEAU = "Africa/Douala";
