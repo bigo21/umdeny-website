@@ -36,7 +36,7 @@ export const A_CONFIRMER = "À confirmer prochainement";
  * heure. Il faudrait alors un UPDATE des lignes existantes, à demander à
  * l'équipe backend.
  */
-export const DATE_PROCHAIN_WEBINAIRE: string | null = "2026-08-20T18:00:00+01:00";
+export const DATE_PROCHAIN_WEBINAIRE: string | null = null;
 
 /** Fuseau du siège, à Yaoundé. Le Cameroun ne pratique pas d'heure d'été. */
 const FUSEAU = "Africa/Douala";
