@@ -27,6 +27,14 @@ export const A_CONFIRMER = "À confirmer prochainement";
  * `null` tant que la date n'est pas arrêtée : la ligne « Date » affiche alors
  * son libellé d'attente, et le champ est omis du payload, où le contrat de
  * l'Edge Function le déclare optionnel.
+ *
+ * ATTENTION — à confirmer AVANT l'ouverture du formulaire. Cette valeur est
+ * recopiée dans chaque inscription au moment où elle est enregistrée, et c'est
+ * la copie en base, non cette constante, que lisent les rappels J-1 et H-1.
+ * La modifier plus tard ne rattrape donc pas les inscriptions déjà prises :
+ * elles garderont l'ancienne date et leurs rappels partiront à la mauvaise
+ * heure. Il faudrait alors un UPDATE des lignes existantes, à demander à
+ * l'équipe backend.
  */
 export const DATE_PROCHAIN_WEBINAIRE: string | null = "2026-08-20T18:00:00+01:00";
 
