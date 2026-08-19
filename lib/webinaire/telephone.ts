@@ -69,12 +69,13 @@ const CHIFFRES_MIN = 6;
 const CHIFFRES_MAX = 15;
 
 /**
- * Assemble l'indicatif choisi et le numéro saisi en E.164.
+ * Chiffres du numéro au format international, indicatif compris et « + » exclu.
  *
- * Renvoie `null` quand la saisie est vide : le champ est facultatif, et le
- * relais omet alors la clé du payload plutôt que d'envoyer une chaîne vide.
+ * Base commune à la composition et au contrôle de saisie : les deux doivent
+ * juger la même chaîne. Mesurer la saisie d'un côté et le numéro composé de
+ * l'autre laisserait passer un numéro que la composition refuse ensuite.
  *
- * Deux tolérances de saisie, parce que les gens collent autant qu'ils tapent :
+ * Deux tolérances, parce que les gens collent autant qu'ils tapent :
  *
  *  - un numéro déjà international, commençant par « + » ou « 00 », est pris
  *    tel quel et l'indicatif choisi est ignoré. Le concaténer donnerait
@@ -83,20 +84,35 @@ const CHIFFRES_MAX = 15;
  *    en international (le 06 français devient +336), et aucun numéro
  *    camerounais ne commence par zéro : le retirer ne peut pas nuire ici.
  */
-export function composerE164(indicatif: string, saisie: string): string | null {
+function chiffresInternationaux(indicatif: string, saisie: string): string | null {
   const brut = saisie.trim();
   if (!brut) return null;
 
   if (brut.startsWith("+") || brut.startsWith("00")) {
-    const chiffres = brut.replace(/\D/g, "").replace(/^0+/, "");
-    return chiffres ? `+${chiffres.slice(0, CHIFFRES_MAX)}` : null;
+    return brut.replace(/\D/g, "").replace(/^0+/, "") || null;
   }
 
   const national = brut.replace(/\D/g, "").replace(/^0/, "");
   if (!national) return null;
 
-  const prefixe = indicatif.replace(/\D/g, "");
-  return `+${`${prefixe}${national}`.slice(0, CHIFFRES_MAX)}`;
+  return `${indicatif.replace(/\D/g, "")}${national}`;
+}
+
+/**
+ * Assemble l'indicatif choisi et le numéro saisi en E.164.
+ *
+ * Renvoie `null` quand la saisie est vide : le champ est facultatif, et le
+ * relais omet alors la clé du payload plutôt que d'envoyer une chaîne vide.
+ *
+ * Renvoie `null` aussi au-delà de 15 chiffres, plutôt que de tronquer. Une
+ * troncature produirait un numéro syntaxiquement valide mais faux, qui
+ * partirait ensuite en campagne SMS sans que rien ne signale l'erreur — un
+ * refus visible vaut mieux qu'un faux plausible.
+ */
+export function composerE164(indicatif: string, saisie: string): string | null {
+  const chiffres = chiffresInternationaux(indicatif, saisie);
+  if (!chiffres || chiffres.length > CHIFFRES_MAX) return null;
+  return `+${chiffres}`;
 }
 
 /**
@@ -109,12 +125,10 @@ export function composerE164(indicatif: string, saisie: string): string | null {
 export function erreurTelephone(indicatif: string, saisie: string): string | null {
   if (!saisie.trim()) return null;
 
-  const compose = composerE164(indicatif, saisie);
-  if (!compose) return "Ce numéro ne contient aucun chiffre.";
-
-  const chiffres = compose.slice(1).length;
-  if (chiffres < CHIFFRES_MIN) return "Ce numéro semble incomplet.";
-  if (saisie.replace(/\D/g, "").length > CHIFFRES_MAX) return "Ce numéro comporte trop de chiffres.";
+  const chiffres = chiffresInternationaux(indicatif, saisie);
+  if (!chiffres) return "Ce numéro ne contient aucun chiffre.";
+  if (chiffres.length < CHIFFRES_MIN) return "Ce numéro semble incomplet.";
+  if (chiffres.length > CHIFFRES_MAX) return "Ce numéro comporte trop de chiffres.";
 
   return null;
 }

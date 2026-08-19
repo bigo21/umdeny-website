@@ -37,10 +37,19 @@ describe("composerE164", () => {
     assert.equal(composerE164("+237", "abc"), null);
   });
 
-  it("respecte le plafond de 15 chiffres d'E.164", () => {
-    const compose = composerE164("+237", "1234567890123456789");
-    assert.ok(compose);
-    assert.equal(compose.slice(1).length, 15);
+  it("refuse au-delà de 15 chiffres au lieu de tronquer", () => {
+    // Tronquer produirait un numéro syntaxiquement valide mais faux, qui
+    // partirait en campagne SMS sans que rien ne signale l'erreur.
+    assert.equal(composerE164("+237", "1234567890123456789"), null);
+    // Pile à la borne, en revanche, doit passer.
+    assert.equal(composerE164("+237", "123456789012"), "+237123456789012");
+  });
+
+  it("compte l'indicatif dans le plafond, pas seulement la saisie", () => {
+    // 13 chiffres saisis, 16 une fois +237 ajouté : le contrôle doit voir le
+    // numéro composé, sinon la saisie passe puis la composition la refuse.
+    assert.equal(composerE164("+237", "1234567890123"), null);
+    assert.ok(erreurTelephone("+237", "1234567890123"));
   });
 
   it("ne produit jamais autre chose qu'un plus suivi de chiffres", () => {
