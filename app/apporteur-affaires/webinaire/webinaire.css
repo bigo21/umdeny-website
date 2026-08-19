@@ -239,6 +239,29 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .wb-field input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(191,142,80,0.15); }
+/* Indicatif + numéro. La colonne de gauche est bornée : laissée en « auto »,
+   le sélecteur prendrait la largeur de son option la plus longue et pousserait
+   le champ hors du formulaire. « minmax(0, 1fr) » à droite pour la même raison
+   que la rangée Prénom/Nom : sans min-width nul, l'input ne descend pas sous
+   sa largeur intrinsèque. */
+.wb-tel { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 12px; }
+.wb-tel__indicatif {
+  width: 100%; min-width: 0;
+  padding: 14px 16px; border: 1px solid var(--rule-light); background: var(--paper);
+  font-family: var(--body); font-size: 14.5px; color: var(--ink);
+  border-radius: 0; appearance: none; cursor: pointer;
+  /* Chevron dessiné en fond : « appearance: none » retire celui du système,
+     dont le style diffère trop d'un navigateur à l'autre. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%234A5475' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  padding-right: 38px; text-overflow: ellipsis;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.wb-tel__indicatif:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(191,142,80,0.15); }
+/* Sous 520 px, 170 px pour l'indicatif ne laissent plus rien au numéro : les
+   deux passent l'un sous l'autre. */
+@media (max-width: 520px) { .wb-tel { grid-template-columns: 1fr; gap: 10px; } }
+
 .wb-optional { color: var(--mist); font-weight: 400; font-size: 10.5px; margin-left: 6px; text-transform: none; letter-spacing: 0; }
 .wb-checkbox {
   display: flex; gap: 12px; align-items: flex-start;

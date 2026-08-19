@@ -23,11 +23,13 @@
   "include": [
     "tests/scoring.test.ts",
     "tests/emails.test.ts",
+    "tests/telephone.test.ts",
     "lib/quiz-apporteur/data.ts",
     "lib/quiz-apporteur/scoring.ts",
     "lib/quiz-apporteur/types.ts",
     "lib/quiz-apporteur/insights.ts",
     "lib/quiz-apporteur/candidature.ts",
-    "lib/emails/candidature-apporteur.ts"
+    "lib/emails/candidature-apporteur.ts",
+    "lib/webinaire/telephone.ts"
   ]
 }

@@ -33,6 +33,12 @@ import {
 import { A_CONFIRMER, LIENS_LEGAUX, posterDeRepli, urlLecteur, WEBINAIRE } from "@/lib/webinaire/config";
 import { submitInscription } from "@/lib/webinaire/submitInscription";
 import { capterTracking, type Tracking } from "@/lib/webinaire/tracking";
+import {
+  composerE164,
+  erreurTelephone,
+  INDICATIF_PAR_DEFAUT,
+  INDICATIFS,
+} from "@/lib/webinaire/telephone";
 import type { Inscription } from "@/lib/webinaire/types";
 import "./webinaire.css";
 
@@ -333,6 +339,10 @@ const INSCRIPTION_VIDE: Inscription = {
 
 function Formulaire() {
   const [inscription, setInscription] = useState<Inscription>(INSCRIPTION_VIDE);
+  // Indicatif et numéro vivent séparément dans le formulaire ; « Inscription »
+  // ne transporte que leur composition en E.164, faite à l'envoi.
+  const [paysIndicatif, setPaysIndicatif] = useState(INDICATIF_PAR_DEFAUT);
+  const [telephoneSaisi, setTelephoneSaisi] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [succes, setSucces] = useState(false);
   const [emailEnvoye, setEmailEnvoye] = useState(true);
@@ -355,10 +365,24 @@ function Formulaire() {
     evenement.preventDefault();
     if (envoi) return;
 
+    const indicatif = INDICATIFS.find((i) => i.code === paysIndicatif)?.indicatif ?? "+237";
+
+    const soucis = erreurTelephone(indicatif, telephoneSaisi);
+    if (soucis) {
+      setErreur(soucis);
+      return;
+    }
+
     setEnvoi(true);
     setErreur(null);
     try {
-      const resultat = await submitInscription(inscription, tracking);
+      // Brevo refuse la requête entière si le numéro n'est pas en E.164 : le
+      // contact n'est alors pas créé du tout. La composition se fait donc ici,
+      // et non côté serveur, pour que ce soit la donnée saisie qui parte juste.
+      const resultat = await submitInscription(
+        { ...inscription, telephone: composerE164(indicatif, telephoneSaisi) ?? "" },
+        tracking,
+      );
       setEmailEnvoye(resultat.emailConfirmationEnvoye);
       setSucces(true);
     } catch (cause) {
@@ -454,14 +478,35 @@ function Formulaire() {
           <label htmlFor="telephone">
             Téléphone <span className="wb-optional">(optionnel)</span>
           </label>
-          <input
-            type="tel"
-            id="telephone"
-            name="telephone"
-            autoComplete="tel"
-            value={inscription.telephone}
-            onChange={(e) => modifier("telephone", e.target.value)}
-          />
+          <div className="wb-tel">
+            <select
+              className="wb-tel__indicatif"
+              name="indicatif"
+              autoComplete="tel-country-code"
+              aria-label="Indicatif téléphonique"
+              value={paysIndicatif}
+              onChange={(e) => setPaysIndicatif(e.target.value)}
+            >
+              {INDICATIFS.map(({ code, pays, indicatif }) => (
+                // L'indicatif est placé en tête du libellé à dessein : la
+                // liste est plus large que le champ fermé, et c'est le code
+                // qui doit rester lisible quand le nom du pays est tronqué.
+                <option key={code} value={code}>
+                  {indicatif} {pays}
+                </option>
+              ))}
+            </select>
+            <input
+              type="tel"
+              id="telephone"
+              name="telephone"
+              inputMode="tel"
+              autoComplete="tel-national"
+              placeholder="6 57 55 96 16"
+              value={telephoneSaisi}
+              onChange={(e) => setTelephoneSaisi(e.target.value)}
+            />
+          </div>
         </div>
 
         <label className="wb-checkbox">

@@ -84,7 +84,7 @@ export async function POST(requete: Request) {
     );
   }
 
-  const telephone = texteRequis(inscription?.telephone);
+  const telephone = telephoneCompact(inscription?.telephone);
 
   // Passage en snake_case, la casse du contrat. `date_webinaire` et
   // `telephone` sont optionnels : on les omet plutôt que d'envoyer null, pour
@@ -179,6 +179,21 @@ export async function POST(requete: Request) {
     },
     { status: 201 },
   );
+}
+
+/**
+ * Retire les séparateurs d'un numéro, sans rien refuser.
+ *
+ * Le formulaire compose déjà de l'E.164 ; ce filet ne vaut que pour un appel
+ * direct à cette route. Volontairement permissif : le backend Supabase
+ * normalise de son côté, et transmettre un numéro douteux vaut mieux que le
+ * perdre en le refusant ici.
+ */
+function telephoneCompact(valeur: unknown): string | null {
+  const brut = texteRequis(valeur);
+  if (!brut) return null;
+  const compact = brut.replace(/[\s.\-()]/g, "");
+  return compact || null;
 }
 
 /**
