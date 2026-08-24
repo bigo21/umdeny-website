@@ -12,9 +12,14 @@
 #
 # Ce config.toml subsiste parce que la pile locale utilisée en développement
 # porte le project_id ci-dessous, et que c'est elle que vise SUPABASE_URL dans
-# .env.local. Le dépôt backend déclare un autre project_id : y lancer
-# « supabase start » démarrerait une SECONDE pile, sur d'autres ports et avec
-# une autre base — pas celle-ci.
+# .env.local.
+#
+# Le dépôt backend déclare un autre project_id mais LES MÊMES PORTS (api 54321,
+# db 54322, pooler 54329). Y lancer « supabase start » ne créerait donc pas une
+# base parallèle silencieuse : les conteneurs porteraient d'autres noms et
+# échoueraient au bind tant que cette pile-ci tourne. La panne est bruyante, ce
+# qui est la bonne nouvelle — mais les deux piles restent exclusives, on ne peut
+# pas faire tourner les deux dépôts en local en même temps.
 
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
