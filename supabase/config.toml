@@ -1,3 +1,21 @@
+# ATTENTION — ce fichier ne pilote QUE la pile Supabase locale de ce dépôt.
+#
+# Le schéma « umdeny_apporteur » n'est plus décrit ici. Ses migrations vivent
+# dans le dépôt umdeny-supa-backend, avec les Edge Functions et les crons qui
+# écrivent dans ces tables. Ce site est client de cette base, pas propriétaire :
+# il y écrit via sa route de candidature et via l'Edge Function d'inscription,
+# mais ne gère ni son cycle de vie ni les fonctions qui en dépendent.
+#
+# Conséquence : « supabase db reset » lancé d'ici reconstruirait une base VIDE,
+# puisqu'il ne reste aucune migration dans ce dépôt. Pour reconstruire le
+# schéma, se placer dans umdeny-supa-backend.
+#
+# Ce config.toml subsiste parce que la pile locale utilisée en développement
+# porte le project_id ci-dessous, et que c'est elle que vise SUPABASE_URL dans
+# .env.local. Le dépôt backend déclare un autre project_id : y lancer
+# « supabase start » démarrerait une SECONDE pile, sur d'autres ports et avec
+# une autre base — pas celle-ci.
+
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the

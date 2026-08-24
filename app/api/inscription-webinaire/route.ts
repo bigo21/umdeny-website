@@ -142,6 +142,18 @@ export async function POST(requete: Request) {
       );
     }
 
+    // 502/503/504 amont : la fonction ne tourne pas — redéploiement en cours,
+    // runtime arrêté, passerelle indisponible. Ce n'est pas la même chose
+    // qu'un échec de traitement, et le visiteur mérite de le savoir : ici
+    // réessayer dans un instant a de bonnes chances de marcher.
+    if (reponse.status === 502 || reponse.status === 503 || reponse.status === 504) {
+      console.error(`[inscription-webinaire] Edge Function indisponible (HTTP ${reponse.status}).`);
+      return NextResponse.json(
+        { error: "Le service d'inscription ne répond pas. Merci de réessayer dans un instant." },
+        { status: 503 },
+      );
+    }
+
     console.error(
       `[inscription-webinaire] Edge Function en échec (HTTP ${reponse.status}) :`,
       corps?.error ?? "sans message",
