@@ -18,6 +18,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 /** Schéma dédié à ce projet sur le Supabase mutualisé. */
 export const APPORTEUR_SCHEMA = "umdeny_apporteur";
 export const CANDIDATURES_TABLE = "candidatures";
+export const INSCRIPTIONS_TABLE = "inscriptions_webinaire";
 
 export function createServiceClient(): SupabaseClient {
   const url = process.env.SUPABASE_URL;

@@ -7,13 +7,23 @@
 // =====================================================
 
 import { useCallback, useMemo, useState } from "react";
-import { buildScreens } from "./data";
+import { buildScreens, COMPLEMENTARY_SCREEN } from "./data";
 import { computeScore } from "./scoring";
 import { submitCandidature } from "./submitCandidature";
 import type { Answers, QuizPayload, QuizPhase, QuizScreen } from "./types";
 
 /** État de l'envoi : le candidat ne doit pas lire « reçue » si rien n'est parti. */
 export type SubmitState = "idle" | "sending" | "error";
+
+/**
+ * Les cases de consentement partent explicitement à false. Sans cela, une case
+ * jamais touchée reste absente de reponses_completes_json, où rien ne
+ * distinguerait plus un refus d'une question non posée — c'est précisément ce
+ * que cette trace doit pouvoir montrer.
+ */
+const ANSWERS_INITIALES: Answers = Object.fromEntries(
+  (COMPLEMENTARY_SCREEN.fields ?? []).filter((f) => f.type === "consent").map((f) => [f.id, false]),
+);
 
 export interface UseQuizApporteurOptions {
   /**
@@ -31,6 +41,9 @@ export function isScreenAnswered(screen: QuizScreen | undefined, answers: Answer
     return (screen.fields ?? []).every((field) => {
       if (!field.required) return true;
       const value = answers[field.id];
+      // Une case de consentement obligatoire bloque tant qu'elle n'est pas
+      // cochée : c'est le pendant client du rejet 422 côté serveur.
+      if (field.type === "consent") return value === true;
       return typeof value === "string" && value.trim().length > 0;
     });
   }
@@ -43,7 +56,7 @@ export function isScreenAnswered(screen: QuizScreen | undefined, answers: Answer
 export function useQuizApporteur(options: UseQuizApporteurOptions = {}) {
   const { onSubmit } = options;
 
-  const [answers, setAnswers] = useState<Answers>({});
+  const [answers, setAnswers] = useState<Answers>(ANSWERS_INITIALES);
   const [rawIndex, setRawIndex] = useState(0);
   const [phase, setPhase] = useState<QuizPhase>("landing");
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
@@ -65,6 +78,11 @@ export function useQuizApporteur(options: UseQuizApporteurOptions = {}) {
 
   const setField = useCallback((fieldId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [fieldId]: value }));
+  }, []);
+
+  /** Case de consentement : stockée en booléen, jamais en "Oui"/"Non". */
+  const setConsent = useCallback((fieldId: string, checked: boolean) => {
+    setAnswers((prev) => ({ ...prev, [fieldId]: checked }));
   }, []);
 
   const selectOption = useCallback((screenId: string, option: string) => {
@@ -155,6 +173,7 @@ export function useQuizApporteur(options: UseQuizApporteurOptions = {}) {
     submit,
     // saisie
     setField,
+    setConsent,
     selectOption,
     toggleOption,
   };

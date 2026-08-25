@@ -8,16 +8,21 @@ export type VerticalKey = "BOURSE" | "TRADING" | "MOMO" | "WIFI" | "IP" | "CROWD
 
 export type GeoType = "standard" | "city";
 
-export type AnswerValue = string | string[];
+// Le booléen sert aux deux cases de consentement : une case cochée n'est pas
+// une réponse parmi des options, et la stocker en "Oui"/"Non" obligerait
+// chaque lecteur à réinterpréter une chaîne là où les colonnes
+// consentement_rgpd / consentement_contact sont des booléens.
+export type AnswerValue = string | string[] | boolean;
 export type Answers = Record<string, AnswerValue>;
 
-export type FieldType = "text" | "email" | "tel" | "textarea";
+export type FieldType = "text" | "email" | "tel" | "textarea" | "consent";
 
 export interface QuizField {
   id: string;
   label: string;
   sub?: string;
   type: FieldType;
+  /** Pour un champ « consent », signifie : la case doit être cochée pour continuer. */
   required: boolean;
 }
 

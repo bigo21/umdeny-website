@@ -240,6 +240,26 @@ export function QuizApporteur({ onSubmit }: { onSubmit?: (payload: QuizPayload) 
                 {screen.title && <h2 className="qz-q-title">{screen.title}</h2>}
                 <div className="qz-fields">
                   {(screen.fields ?? []).map((field) => {
+                    // Un consentement se coche, il ne se saisit pas : libellé à
+                    // droite de la case et en casse normale, pas l'étiquette
+                    // capitalisée des champs de saisie.
+                    if (field.type === "consent") {
+                      return (
+                        <label key={field.id} className="qz-consent">
+                          <input
+                            type="checkbox"
+                            name={field.id}
+                            checked={answers[field.id] === true}
+                            onChange={(e) => quiz.setConsent(field.id, e.target.checked)}
+                          />
+                          <span>
+                            {field.label}
+                            {field.required && <span className="qz-consent__req"> *</span>}
+                          </span>
+                        </label>
+                      );
+                    }
+
                     const value = typeof answers[field.id] === "string" ? (answers[field.id] as string) : "";
                     return (
                       <div key={field.id} className="qz-field">

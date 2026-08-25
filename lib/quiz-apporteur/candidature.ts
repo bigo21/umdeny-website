@@ -55,6 +55,8 @@ export interface CandidatureRow {
   liens_partages: string | null;
   message_libre: string | null;
   geo_tag: string | null;
+  consentement_rgpd: boolean;
+  consentement_contact: boolean;
   reponses_completes_json: Answers;
 }
 
@@ -68,6 +70,16 @@ function str(answers: Answers, id: string): string | null {
 function list(answers: Answers, id: string): string[] {
   const value = answers[id];
   return Array.isArray(value) ? value : [];
+}
+
+/**
+ * Une case cochée vaut true, tout le reste vaut false — jamais null. Une
+ * colonne de consentement à null ne se distingue pas d'un refus à la lecture,
+ * alors que la différence compte en cas de contrôle : depuis que le parcours
+ * pose les deux cases, l'absence de réponse est un refus explicite.
+ */
+function bool(answers: Answers, id: string): boolean {
+  return answers[id] === true;
 }
 
 /** Réponses aux 7 questions de chaque verticale cochée, avec des clés lisibles. */
@@ -143,6 +155,8 @@ export function buildCandidature(answers: Answers): BuiltCandidature {
     signaux_complementaires: signals,
     liens_partages: str(answers, "liens"),
     message_libre: str(answers, "message"),
+    consentement_rgpd: bool(answers, "consentement_rgpd"),
+    consentement_contact: bool(answers, "consentement_contact"),
     // Le pays de résidence sert de repère géographique dans le CRM.
     geo_tag: str(answers, "q6_geo"),
     reponses_completes_json: answers,
@@ -180,6 +194,17 @@ export function validateAnswers(answers: unknown): ValidationResult {
   // Spec partie 4 : une réponse « Non » à la majorité ne crée AUCUNE fiche CRM.
   if (a.q5_gate !== "Oui") {
     return { ok: false, status: 422, error: "Le programme est réservé aux personnes majeures." };
+  }
+
+  // Même sévérité que le portail : sans consentement au traitement, aucune
+  // fiche n'est créée. La case est bloquante côté client, mais le client n'est
+  // pas le garant — c'est ce test-ci qui l'est.
+  if (a.consentement_rgpd !== true) {
+    return {
+      ok: false,
+      status: 422,
+      error: "Le consentement au traitement de vos données est nécessaire pour envoyer votre candidature.",
+    };
   }
 
   const verticals = a.q18_pivot;

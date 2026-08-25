@@ -16,11 +16,55 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { candidateEmail, TEAM_EMAIL, teamEmail } from "@/lib/emails/candidature-apporteur";
 import { buildCandidature, validateAnswers } from "@/lib/quiz-apporteur/candidature";
-import { APPORTEUR_SCHEMA, CANDIDATURES_TABLE, createServiceClient } from "@/lib/supabase/server";
+import {
+  APPORTEUR_SCHEMA,
+  CANDIDATURES_TABLE,
+  createServiceClient,
+  INSCRIPTIONS_TABLE,
+} from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
 const FROM = process.env.EMAIL_FROM ?? "Umdeny Capital <candidatures@umdeny.com>";
+
+/**
+ * Inscription webinaire d'origine du candidat, si elle existe.
+ *
+ * Rapprochement par email SEULEMENT : le formulaire de candidature laisse le
+ * téléphone en saisie libre, là où l'inscription webinaire le normalise en
+ * E.164 — les deux ne sont donc pas comparables. L'Edge Function d'inscription
+ * enregistre l'email déjà trimé et en minuscules, d'où la même normalisation
+ * ici avant comparaison.
+ *
+ * Un même email peut s'être inscrit plusieurs fois (aucune contrainte
+ * d'unicité côté inscriptions) : on retient la plus récente.
+ *
+ * Ne lève jamais. Le rattachement est un confort de suivi, pas une condition
+ * d'enregistrement : un candidat peut arriver sans être passé par le webinaire
+ * (lien direct depuis la newsletter), et une panne de ce lookup ne doit pas
+ * coûter la candidature.
+ */
+async function trouverInscriptionId(
+  supabase: ReturnType<typeof createServiceClient>,
+  email: string,
+): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .schema(APPORTEUR_SCHEMA)
+      .from(INSCRIPTIONS_TABLE)
+      .select("id")
+      .eq("email", email.trim().toLowerCase())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return (data?.id as string) ?? null;
+  } catch (error) {
+    console.error("[candidature-apporteur] rattachement à l'inscription webinaire impossible :", error);
+    return null;
+  }
+}
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -53,14 +97,17 @@ export async function POST(request: Request) {
     );
   }
 
-  // --- 1. Persistance : source de vérité.
+  // --- 1. Rattachement au tunnel : au mieux, jamais bloquant.
+  const inscriptionId = await trouverInscriptionId(supabase, built.row.email);
+
+  // --- 2. Persistance : source de vérité.
   // Si elle échoue, on ne raconte pas au candidat que sa candidature est reçue.
   let candidatId: string;
   try {
     const { data, error } = await supabase
       .schema(APPORTEUR_SCHEMA)
       .from(CANDIDATURES_TABLE)
-      .insert(built.row)
+      .insert({ ...built.row, inscription_id: inscriptionId })
       .select("candidat_id")
       .single();
 
@@ -76,7 +123,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // --- 2. Notifications : au mieux.
+  // --- 3. Notifications : au mieux.
   // La candidature est déjà sauvegardée ; un échec d'email ne doit pas la
   // faire perdre ni bloquer le candidat.
   let emailCandidatOk = false;

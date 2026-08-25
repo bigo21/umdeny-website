@@ -145,10 +145,31 @@ describe("Construction du parcours", () => {
   it("totalise les 61 questions de la spec, plus la question pivot", () => {
     const all = buildScreens({ q18_pivot: VERTICALS.map((v) => v.label) });
     const questions = all.reduce(
-      (n, s) => n + (s.type === "fields" ? (s.fields?.length ?? 0) : s.type === "intro" ? 0 : 1),
+      // Les cases de consentement ne sont pas des questions de la spec : elles
+      // ne comptent pas dans ce total, qui vérifie la couverture du contenu.
+      (n, s) =>
+        n +
+        (s.type === "fields"
+          ? (s.fields ?? []).filter((f) => f.type !== "consent").length
+          : s.type === "intro"
+            ? 0
+            : 1),
       0,
     );
     assert.equal(questions, 62);
+  });
+
+  it("pose les deux consentements sur le dernier écran, RGPD obligatoire", () => {
+    const all = buildScreens({ q18_pivot: [VERTICALS[0].label] });
+    const consents = (all[all.length - 1].fields ?? []).filter((f) => f.type === "consent");
+
+    assert.deepEqual(
+      consents.map((f) => [f.id, f.required]),
+      [
+        ["consentement_rgpd", true],
+        ["consentement_contact", false],
+      ],
+    );
   });
 
   it("insère les verticales dans l'ordre de la liste Q18", () => {

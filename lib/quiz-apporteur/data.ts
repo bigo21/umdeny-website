@@ -5,7 +5,7 @@
 // n'apparaît côté candidat : la correspondance se fait en interne.
 // =====================================================
 
-import type { QuizScreen, Vertical, VerticalKey, VerticalTheme } from "./types";
+import type { Answers, QuizScreen, Vertical, VerticalKey, VerticalTheme } from "./types";
 
 /** Nom de l'icône (voir app/components/icons.tsx) associée à chaque verticale. */
 export const VERTICAL_ICONS: Record<VerticalKey, string> = {
@@ -329,6 +329,23 @@ export const COMPLEMENTARY_SCREEN: QuizScreen = {
       type: "textarea",
       required: false,
     },
+    // Libellés repris du formulaire d'inscription au webinaire, à un mot près
+    // (« inscription » → « candidature »), pour que les deux parcours de la
+    // campagne disent la même chose. Texte à portée légale : ne pas le
+    // reformuler sans validation.
+    {
+      id: "consentement_rgpd",
+      label:
+        "J'accepte que mes données soient traitées par Umdeny Capital dans le cadre de cette candidature, conformément à la politique de confidentialité.",
+      type: "consent",
+      required: true,
+    },
+    {
+      id: "consentement_contact",
+      label: "J'accepte d'être recontacté(e) par l'équipe Umdeny Capital.",
+      type: "consent",
+      required: false,
+    },
   ],
 };
 
@@ -347,7 +364,7 @@ export const TRAIL_BLOCKS = [
  * Chaque verticale cochée à Q18 insère un écran d'intro + ses 7 questions,
  * dans l'ordre de la liste Q18. La longueur varie donc en cours de parcours.
  */
-export function buildScreens(answers: Record<string, string | string[]>): QuizScreen[] {
+export function buildScreens(answers: Answers): QuizScreen[] {
   const screens: QuizScreen[] = [...COMMON_SCREENS];
 
   const pivot = answers.q18_pivot;

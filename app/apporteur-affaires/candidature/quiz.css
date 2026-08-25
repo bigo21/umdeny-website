@@ -186,6 +186,12 @@
 .qz-field textarea { min-height: 110px; resize: vertical; }
 .qz-field .qz-optional-tag { color: var(--mist); font-weight: 400; font-size: 10.5px; letter-spacing: 0.08em; margin-left: 6px; text-transform: none; }
 
+/* Consentements : la case précède un libellé en casse normale, à l'inverse
+   des champs de saisie dont l'étiquette est capitalisée au-dessus. */
+.qz-consent { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); }
+.qz-consent input { width: 17px; height: 17px; flex: 0 0 auto; margin-top: 2px; accent-color: var(--gold-dark); cursor: pointer; }
+.qz-consent__req { color: var(--gold-dark); font-weight: 700; }
+
 .qz-options { display: flex; flex-direction: column; gap: 11px; margin-bottom: 8px; }
 .qz-opt {
   display: flex; align-items: center; gap: 16px;
