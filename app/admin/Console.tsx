@@ -143,32 +143,21 @@ export function Console({
 
     const demande: Demande = { genre: "configurer", id: session.id, champs };
 
-    if ("date_webinaire" in champs && session.nbInscrits > 0) {
-      // Effacer une date n'envoie RIEN, contrairement à la modifier. Les
-      // inscrits gardent alors dans leur boîte une date à laquelle plus rien
-      // n'aura lieu, et aucun rappel ne viendra les détromper.
-      if (champs.date_webinaire === null) {
-        setConfirmation({
-          demande,
-          id: session.id,
-          alerte: true,
-          titre: "Effacer la date ne prévient personne.",
-          lignes: [
-            `Les ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""} garderont la date déjà annoncée et ne recevront aucun message.`,
-            "Pour les prévenir, indiquez une nouvelle date plutôt que de vider le champ.",
-          ],
-        });
-        return;
-      }
-
+    // Toute modification prévient désormais les inscrits, plus seulement la
+    // date. Une confirmation unique couvre donc tous les champs : mieux vaut
+    // prévenir une fois de trop que laisser partir un email sans l'annoncer.
+    if (session.nbInscrits > 0) {
       setConfirmation({
         demande,
         id: session.id,
         alerte: false,
         // « jusqu'à » et non un compte ferme : quelqu'un inscrit après la
-        // modification a déjà la bonne date et ne reçoit rien.
-        titre: `Cette modification enverra un email à jusqu'à ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""}.`,
-        lignes: ["L'envoi n'est pas immédiat : ils seront prévenus dans les 5 minutes."],
+        // modification a déjà l'information et ne reçoit rien.
+        titre: `Cette modification préviendra jusqu'à ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""} par email.`,
+        lignes: [
+          "L'envoi n'est pas immédiat : ils seront prévenus dans les 5 minutes.",
+          "Plusieurs champs modifiés en une seule fois ne produisent qu'un seul email.",
+        ],
       });
       return;
     }
@@ -179,23 +168,26 @@ export function Console({
   function changerStatut(session: SessionAffichee, statut: string) {
     const demande: Demande = { genre: "statut", id: session.id, statut };
 
-    // Annuler n'envoie aucun email ET laisse la date chez Brevo : le rappel
-    // de la veille partira quand même. C'est l'avertissement le plus important
-    // de cette page — des gens se connecteraient à un webinaire annulé.
-    if (statut === "annule" && session.nbInscrits > 0) {
+    // L'annulation prévient bien les inscrits et retire la date de leurs
+    // rappels. Elle reste la seule action irréversible au sens qui compte :
+    // l'email parti ne se rattrape pas.
+    if (statut === "annule") {
       setConfirmation({
         demande,
         id: session.id,
         alerte: true,
-        titre: "Annuler ne prévient pas les inscrits.",
+        titre: "Annuler enverra un email d'annulation aux inscrits.",
         lignes: [
-          `Les ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""} ne recevront aucun message d'annulation.`,
-          "Pire : le rappel de la veille leur sera tout de même envoyé, pour un webinaire qui n'aura pas lieu.",
-          "Prévenez-les vous-même avant d'annuler ici.",
+          session.nbInscrits > 0
+            ? `Jusqu'à ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""} recevront le message, et leurs rappels seront supprimés.`
+            : "Aucun inscrit pour l'instant : rien ne sera envoyé.",
+          "Un email envoyé ne se rappelle pas. Vérifiez qu'il s'agit bien de la session à annuler.",
         ],
       });
       return;
     }
+
+    // « Terminée » n'annonce rien : la session a eu lieu.
     void appliquer(demande);
   }
 
@@ -297,14 +289,17 @@ export function Console({
               onChange={(e) => modifier(session.id, "dateChamp", e.target.value)}
             />
             <p className="ad-aide">
-              Modifier la date prévient les inscrits par email, dans les 5 minutes qui suivent.
-              La vider n&apos;envoie rien : ils garderaient la date déjà annoncée.
+              Fixer, changer ou retirer la date prévient les inscrits par email, dans les
+              5 minutes qui suivent.
             </p>
           </div>
 
           <p className="ad-aide ad-aide--bloc">
-            Modifier les liens ou le libellé n&apos;envoie aucun email. Le lien du direct n&apos;est
-            transmis qu&apos;au moment du rappel, il peut donc être changé jusque-là sans conséquence.
+            Toute modification prévient les inscrits par email. Modifiez donc tout ce qui doit
+            l&apos;être, puis enregistrez une seule fois : plusieurs champs changés ensemble ne
+            produisent qu&apos;un seul message, là où un enregistrement par champ en produirait
+            autant. Seul cas sans envoi : retirer un lien sans le remplacer, puisqu&apos;il n&apos;y
+            a rien à transmettre.
           </p>
 
           <div className="ad-champ--duo">
