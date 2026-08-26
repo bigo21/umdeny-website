@@ -1,0 +1,146 @@
+/* =========================================================
+   ADMINISTRATION DES WEBINAIRES (page-specific)
+   Reprend les tokens de globals.css. Préfixe `ad-`.
+   Surface interne : sobriété avant tout, aucune animation décorative.
+   ========================================================= */
+
+.ad-connexion {
+  min-height: 100vh; background: var(--navy-deep);
+  display: grid; place-items: center; padding: var(--gutter);
+}
+.ad-connexion__carte {
+  width: 100%; max-width: 400px; background: #fff;
+  padding: clamp(28px, 5vw, 40px); text-align: center;
+  border: 1px solid var(--rule-light); box-shadow: 0 40px 90px -40px rgba(5,15,60,0.6);
+}
+.ad-connexion__icn {
+  width: 52px; height: 52px; margin: 0 auto 18px;
+  background: var(--gold); color: var(--navy); display: grid; place-items: center;
+}
+.ad-connexion__carte h1 {
+  font-family: var(--display); font-weight: 700; font-size: 24px;
+  margin: 0 0 8px; color: var(--navy);
+}
+.ad-connexion__carte p { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 26px; }
+.ad-connexion__carte label {
+  display: block; text-align: left; font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--gold-dark); font-weight: 600; margin-bottom: 6px;
+}
+
+.ad-console {
+  max-width: 820px; margin: 0 auto;
+  padding: clamp(24px, 4vw, 48px) var(--gutter) 80px;
+}
+.ad-entete {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap; margin-bottom: 28px;
+  padding-bottom: 20px; border-bottom: 1px solid var(--rule-light);
+}
+.ad-entete h1 {
+  font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3vw, 28px);
+  margin: 0 0 6px; color: var(--navy);
+}
+.ad-entete p { margin: 0; font-size: 13.5px; color: var(--ink-soft); max-width: 52ch; }
+
+.ad-carte {
+  background: #fff; border: 1px solid var(--rule-light); padding: clamp(20px, 3vw, 28px);
+  margin-bottom: 18px; box-shadow: 0 18px 40px -30px rgba(5,15,60,0.25);
+}
+.ad-carte__tete {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.ad-pastille {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+  padding: 5px 12px; border: 1px solid var(--rule-light); color: var(--ink-soft);
+}
+.ad-pastille--planifie { color: var(--gold-dark); border-color: rgba(191,142,80,0.45); background: rgba(191,142,80,0.07); }
+.ad-pastille--termine { color: var(--mist); }
+.ad-pastille--annule { color: #9B2C22; border-color: rgba(176,58,46,0.35); background: rgba(176,58,46,0.05); }
+.ad-inscrits {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--ink-soft);
+}
+
+.ad-champ { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; min-width: 0; }
+.ad-champ--duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 560px) { .ad-champ--duo { grid-template-columns: 1fr; gap: 0; } }
+.ad-champ label {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gold-dark); font-weight: 600;
+}
+.ad-note { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--mist); font-size: 10.5px; }
+.ad-champ input, .ad-champ select, .ad-connexion__carte input, .ad-statut select {
+  width: 100%; min-width: 0;
+  padding: 12px 14px; border: 1px solid var(--rule-light); background: var(--paper);
+  font-family: var(--body); font-size: 14px; color: var(--ink); border-radius: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ad-champ input:focus, .ad-champ select:focus, .ad-connexion__carte input:focus, .ad-statut select:focus {
+  outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(191,142,80,0.15);
+}
+.ad-aide { margin: 2px 0 0; font-size: 12px; color: var(--mist); line-height: 1.5; }
+
+.ad-carte__actions {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-top: 22px;
+  padding-top: 18px; border-top: 1px solid var(--rule-light);
+}
+.ad-statut { display: flex; flex-direction: column; gap: 6px; min-width: 170px; }
+.ad-statut label {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gold-dark); font-weight: 600;
+}
+
+.ad-bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 22px; font-family: var(--body); font-size: 14px; font-weight: 600;
+  border: 1px solid transparent; border-radius: 0; cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+.ad-bouton:disabled { opacity: 0.55; cursor: progress; }
+.ad-bouton--or { background: var(--gold); color: var(--navy); width: 100%; }
+.ad-carte .ad-bouton--or { width: auto; }
+.ad-bouton--or:hover:not(:disabled) { background: var(--gold-soft); }
+.ad-bouton--fantome { background: transparent; color: var(--ink-soft); border-color: var(--rule-light); }
+.ad-bouton--fantome:hover { color: var(--navy); border-color: var(--gold); }
+
+.ad-erreur, .ad-avertissement, .ad-succes {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 13px; line-height: 1.5; padding: 12px 14px; margin: 0 0 16px;
+}
+.ad-erreur { border: 1px solid rgba(176,58,46,0.35); background: rgba(176,58,46,0.06); color: #9B2C22; }
+.ad-avertissement { border: 1px solid rgba(191,142,80,0.45); background: rgba(191,142,80,0.08); color: var(--gold-dark); }
+.ad-succes { border: 1px solid rgba(47,133,90,0.35); background: rgba(47,133,90,0.07); color: #2F855A; }
+.ad-erreur svg, .ad-avertissement svg { flex-shrink: 0; margin-top: 1px; }
+.ad-connexion__carte .ad-erreur { text-align: left; }
+
+/* Confirmation d'un changement de date : jamais discrète, elle annonce un
+   envoi d'emails que l'on ne peut pas rappeler. */
+.ad-confirmation {
+  border: 1px solid var(--gold); background: rgba(191,142,80,0.08);
+  padding: 16px; margin-top: 4px;
+}
+.ad-confirmation p {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin: 0 0 14px; font-size: 13.5px; color: var(--navy); line-height: 1.5;
+}
+.ad-confirmation svg { flex-shrink: 0; margin-top: 2px; color: var(--gold-dark); }
+.ad-confirmation__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.ad-creation h2 {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--display); font-weight: 700; font-size: 17px;
+  margin: 0 0 18px; color: var(--navy);
+}
+.ad-case {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 18px; cursor: pointer;
+}
+.ad-case input { margin-top: 3px; accent-color: var(--gold); flex-shrink: 0; }
+
+.ad-vide { font-size: 14px; color: var(--ink-soft); margin: 0 0 18px; }
+
+.ad-tourne { animation: adTourne 0.9s linear infinite; }
+@keyframes adTourne { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ad-tourne { animation: none; } }

@@ -34,7 +34,12 @@ export const config = {
   //  - la route d'inscription au webinaire, pour la même raison. Le préfixe
   //    « apporteur-affaires » couvre déjà la page /apporteur-affaires/webinaire,
   //    mais sa route API vit sous /api et doit être citée à part.
+  //  - la page d'administration et ses routes. C'est précisément pendant une
+  //    maintenance qu'on peut avoir besoin de reprogrammer une session : la
+  //    masquer alors reviendrait à couper l'accès au moment où il sert. Elle
+  //    porte son propre mot de passe et un noindex, la maintenance ne lui
+  //    apporte aucune protection.
   matcher: [
-    "/((?!_next/static|_next/image|assets/|maintenance\\.html|favicon\\.ico|apporteur-affaires|api/candidature-apporteur|api/inscription-webinaire).*)",
+    "/((?!_next/static|_next/image|assets/|maintenance\\.html|favicon\\.ico|apporteur-affaires|admin|api/candidature-apporteur|api/inscription-webinaire|api/admin).*)",
   ],
 };
