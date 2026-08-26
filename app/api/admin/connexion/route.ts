@@ -27,6 +27,23 @@ export async function POST(requete: Request) {
     return NextResponse.json({ error: "Requête illisible." }, { status: 400 });
   }
 
+  // Contrôle de configuration AVANT toute comparaison, et c'est l'ordre qui
+  // compte. Sans mot de passe défini, la comparaison échoue de toute façon :
+  // l'exploitant lisait donc « mot de passe incorrect » alors que le vrai
+  // problème était une variable absente, ce qui envoie chercher au mauvais
+  // endroit — vécu, et coûteux.
+  //
+  // Cet échec ne compte PAS dans la temporisation : il ne vient pas de celui
+  // qui saisit, et le bloquer cinq minutes pour une erreur de déploiement
+  // ajouterait une punition à une panne.
+  if (!process.env.ADMIN_PASSWORD) {
+    console.error("[admin] ADMIN_PASSWORD absente : connexion impossible.");
+    return NextResponse.json(
+      { error: "Configuration serveur incomplète : le mot de passe n'est pas défini côté serveur." },
+      { status: 503 },
+    );
+  }
+
   const saisie = typeof corps.motDePasse === "string" ? corps.motDePasse : "";
   if (!saisie || !motDePasseValide(saisie)) {
     noterEchec(cle);
@@ -38,7 +55,7 @@ export async function POST(requete: Request) {
 
   const jeton = creerJeton();
   if (!jeton) {
-    console.error("[admin] ADMIN_PASSWORD absente : connexion impossible.");
+    console.error("[admin] création du jeton impossible.");
     return NextResponse.json({ error: "Configuration serveur incomplète." }, { status: 503 });
   }
 
