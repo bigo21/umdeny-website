@@ -144,21 +144,40 @@ export function Console({
     const demande: Demande = { genre: "configurer", id: session.id, champs };
 
     // Toute modification prévient désormais les inscrits, plus seulement la
-    // date. Une confirmation unique couvre donc tous les champs : mieux vaut
-    // prévenir une fois de trop que laisser partir un email sans l'annoncer.
-    if (session.nbInscrits > 0) {
-      setConfirmation({
-        demande,
-        id: session.id,
-        alerte: false,
-        // « jusqu'à » et non un compte ferme : quelqu'un inscrit après la
-        // modification a déjà l'information et ne reçoit rien.
-        titre: `Cette modification préviendra jusqu'à ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""} par email.`,
-        lignes: [
-          "L'envoi n'est pas immédiat : ils seront prévenus dans les 5 minutes.",
-          "Plusieurs champs modifiés en une seule fois ne produisent qu'un seul email.",
-        ],
-      });
+    // date. Mieux vaut prévenir une fois de trop que laisser partir un email
+    // sans l'annoncer.
+    //
+    // Le lien de replay fait bande à part : il ne va qu'aux ABSENTS, il est
+    // porté par une autre tâche planifiée, et il ne se regroupe donc pas avec
+    // les autres champs. C'est la seule combinaison qui produit deux emails.
+    const toucheReplay = "lien_replay" in champs;
+    const autres = Object.keys(champs).filter((c) => c !== "lien_replay");
+
+    if (session.nbInscrits > 0 || toucheReplay) {
+      const pluriel = session.nbInscrits > 1 ? "s" : "";
+      // Aucun compte pour le replay : nb_inscrits le surestimerait
+      // grossièrement, en annonçant tous les inscrits là où seuls les absents
+      // le reçoivent.
+      const titre =
+        autres.length > 0
+          ? `Cette modification préviendra jusqu'à ${session.nbInscrits} inscrit${pluriel} par email.`
+          : "Cette modification préviendra les inscrits qui n'ont pas assisté à la session.";
+
+      const lignes: string[] = [];
+      if (autres.length > 0) {
+        lignes.push("L'envoi n'est pas immédiat : ils seront prévenus dans les 5 minutes.");
+      }
+      if (toucheReplay) {
+        lignes.push(
+          autres.length > 0
+            ? "Le lien de replay part séparément, aux seuls absents, et peut mettre jusqu'à 30 minutes : cet enregistrement produira donc deux emails."
+            : "Ceux qui étaient présents ne le reçoivent pas. L'envoi peut prendre jusqu'à 30 minutes.",
+        );
+      } else {
+        lignes.push("Plusieurs champs modifiés en une seule fois ne produisent qu'un seul email.");
+      }
+
+      setConfirmation({ demande, id: session.id, alerte: false, titre, lignes });
       return;
     }
 
@@ -298,8 +317,9 @@ export function Console({
             Toute modification prévient les inscrits par email. Modifiez donc tout ce qui doit
             l&apos;être, puis enregistrez une seule fois : plusieurs champs changés ensemble ne
             produisent qu&apos;un seul message, là où un enregistrement par champ en produirait
-            autant. Seul cas sans envoi : retirer un lien sans le remplacer, puisqu&apos;il n&apos;y
-            a rien à transmettre.
+            autant. Le lien de replay fait exception — il part à part, aux seuls absents — et
+            retirer un lien sans le remplacer n&apos;envoie rien, puisqu&apos;il n&apos;y a rien à
+            transmettre.
           </p>
 
           <div className="ad-champ--duo">
