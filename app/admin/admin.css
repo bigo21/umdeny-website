@@ -80,6 +80,7 @@
   outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(191,142,80,0.15);
 }
 .ad-aide { margin: 2px 0 0; font-size: 12px; color: var(--mist); line-height: 1.5; }
+.ad-aide--bloc { margin: 0 0 16px; padding: 10px 12px; background: var(--paper); border-left: 2px solid var(--rule-light); }
 
 .ad-carte__actions {
   display: flex; align-items: flex-end; justify-content: space-between;
@@ -125,7 +126,14 @@
   display: flex; gap: 10px; align-items: flex-start;
   margin: 0 0 14px; font-size: 13.5px; color: var(--navy); line-height: 1.5;
 }
+.ad-confirmation p > span { display: flex; flex-direction: column; gap: 6px; }
+.ad-confirmation__ligne { color: var(--ink-soft); }
 .ad-confirmation svg { flex-shrink: 0; margin-top: 2px; color: var(--gold-dark); }
+/* Conséquence fâcheuse et silencieuse : l'encadré doit trancher avec la
+   confirmation ordinaire, sinon on le confirme d'un réflexe. */
+.ad-confirmation--alerte { border-color: rgba(176,58,46,0.55); background: rgba(176,58,46,0.06); }
+.ad-confirmation--alerte svg { color: #9B2C22; }
+.ad-confirmation--alerte strong { color: #9B2C22; }
 .ad-confirmation__actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
 .ad-creation h2 {

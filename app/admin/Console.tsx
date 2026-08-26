@@ -36,6 +36,21 @@ export interface SessionAffichee {
 
 type Brouillon = Partial<Pick<SessionAffichee, "libelle" | "dateChamp" | "lienLive" | "lienReplay">>;
 
+/** Ce qu'on s'apprête à faire, mis en attente le temps d'une confirmation. */
+type Demande =
+  | { genre: "configurer"; id: string; champs: Record<string, unknown> }
+  | { genre: "statut"; id: string; statut: string };
+
+interface Confirmation {
+  demande: Demande;
+  /** Session concernée : le panneau s'affiche dans sa carte. */
+  id: string;
+  titre: string;
+  lignes: string[];
+  /** true quand l'action a une conséquence fâcheuse et silencieuse. */
+  alerte: boolean;
+}
+
 const STATUTS = [
   { valeur: "planifie", libelle: "Planifiée" },
   { valeur: "termine", libelle: "Terminée" },
@@ -56,11 +71,7 @@ export function Console({
   const [enCours, setEnCours] = useState<string | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
   const [succes, setSucces] = useState<string | null>(null);
-  const [confirmation, setConfirmation] = useState<{
-    id: string;
-    nbInscrits: number;
-    champs: Record<string, unknown>;
-  } | null>(null);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   function valeur(session: SessionAffichee, champ: keyof Brouillon): string {
     return brouillons[session.id]?.[champ] ?? session[champ];
@@ -130,23 +141,80 @@ export function Console({
       return;
     }
 
-    // Un changement de date déclenche des emails à tous les inscrits : on
-    // annonce combien avant d'agir, jamais après.
+    const demande: Demande = { genre: "configurer", id: session.id, champs };
+
     if ("date_webinaire" in champs && session.nbInscrits > 0) {
-      setConfirmation({ id: session.id, nbInscrits: session.nbInscrits, champs });
+      // Effacer une date n'envoie RIEN, contrairement à la modifier. Les
+      // inscrits gardent alors dans leur boîte une date à laquelle plus rien
+      // n'aura lieu, et aucun rappel ne viendra les détromper.
+      if (champs.date_webinaire === null) {
+        setConfirmation({
+          demande,
+          id: session.id,
+          alerte: true,
+          titre: "Effacer la date ne prévient personne.",
+          lignes: [
+            `Les ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""} garderont la date déjà annoncée et ne recevront aucun message.`,
+            "Pour les prévenir, indiquez une nouvelle date plutôt que de vider le champ.",
+          ],
+        });
+        return;
+      }
+
+      setConfirmation({
+        demande,
+        id: session.id,
+        alerte: false,
+        // « jusqu'à » et non un compte ferme : quelqu'un inscrit après la
+        // modification a déjà la bonne date et ne reçoit rien.
+        titre: `Cette modification enverra un email à jusqu'à ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""}.`,
+        lignes: ["L'envoi n'est pas immédiat : ils seront prévenus dans les 5 minutes."],
+      });
       return;
     }
-    await appliquer(session.id, champs);
+
+    await appliquer(demande);
   }
 
-  async function appliquer(id: string, champs: Record<string, unknown>) {
+  function changerStatut(session: SessionAffichee, statut: string) {
+    const demande: Demande = { genre: "statut", id: session.id, statut };
+
+    // Annuler n'envoie aucun email ET laisse la date chez Brevo : le rappel
+    // de la veille partira quand même. C'est l'avertissement le plus important
+    // de cette page — des gens se connecteraient à un webinaire annulé.
+    if (statut === "annule" && session.nbInscrits > 0) {
+      setConfirmation({
+        demande,
+        id: session.id,
+        alerte: true,
+        titre: "Annuler ne prévient pas les inscrits.",
+        lignes: [
+          `Les ${session.nbInscrits} inscrit${session.nbInscrits > 1 ? "s" : ""} ne recevront aucun message d'annulation.`,
+          "Pire : le rappel de la veille leur sera tout de même envoyé, pour un webinaire qui n'aura pas lieu.",
+          "Prévenez-les vous-même avant d'annuler ici.",
+        ],
+      });
+      return;
+    }
+    void appliquer(demande);
+  }
+
+  async function appliquer(demande: Demande) {
     setConfirmation(null);
-    const fait = await appeler(
-      { action: "configurer", id, ...champs },
-      `config-${id}`,
-      "Modifications enregistrées.",
+    if (demande.genre === "configurer") {
+      const fait = await appeler(
+        { action: "configurer", id: demande.id, ...demande.champs },
+        `config-${demande.id}`,
+        "Modifications enregistrées.",
+      );
+      if (fait) setBrouillons((p) => ({ ...p, [demande.id]: {} }));
+      return;
+    }
+    await appeler(
+      { action: "changer_statut", id: demande.id, statut: demande.statut },
+      `statut-${demande.id}`,
+      "Statut mis à jour.",
     );
-    if (fait) setBrouillons((p) => ({ ...p, [id]: {} }));
   }
 
   async function deconnecter() {
@@ -229,9 +297,15 @@ export function Console({
               onChange={(e) => modifier(session.id, "dateChamp", e.target.value)}
             />
             <p className="ad-aide">
-              Vider ce champ efface la date. La modifier prévient les inscrits par email.
+              Modifier la date prévient les inscrits par email, dans les 5 minutes qui suivent.
+              La vider n&apos;envoie rien : ils garderaient la date déjà annoncée.
             </p>
           </div>
+
+          <p className="ad-aide ad-aide--bloc">
+            Modifier les liens ou le libellé n&apos;envoie aucun email. Le lien du direct n&apos;est
+            transmis qu&apos;au moment du rappel, il peut donc être changé jusque-là sans conséquence.
+          </p>
 
           <div className="ad-champ--duo">
             <div className="ad-champ">
@@ -257,23 +331,33 @@ export function Console({
           </div>
 
           {confirmation?.id === session.id ? (
-            <div className="ad-confirmation" role="alertdialog">
+            <div
+              className={"ad-confirmation" + (confirmation.alerte ? " ad-confirmation--alerte" : "")}
+              role="alertdialog"
+            >
               <p>
-                <Send size={16} strokeWidth={TRAIT} />
+                {confirmation.alerte ? (
+                  <TriangleAlert size={16} strokeWidth={TRAIT} />
+                ) : (
+                  <Send size={16} strokeWidth={TRAIT} />
+                )}
                 <span>
-                  Cette modification enverra un email à <strong>
-                    {confirmation.nbInscrits} inscrit{confirmation.nbInscrits > 1 ? "s" : ""}
-                  </strong>.
+                  <strong>{confirmation.titre}</strong>
+                  {confirmation.lignes.map((ligne) => (
+                    <span key={ligne} className="ad-confirmation__ligne">
+                      {ligne}
+                    </span>
+                  ))}
                 </span>
               </p>
               <div className="ad-confirmation__actions">
                 <button
                   type="button"
                   className="ad-bouton ad-bouton--or"
-                  onClick={() => appliquer(session.id, confirmation.champs)}
+                  onClick={() => appliquer(confirmation.demande)}
                   disabled={enCours !== null}
                 >
-                  Confirmer et prévenir
+                  {confirmation.alerte ? "Continuer quand même" : "Confirmer et prévenir"}
                 </button>
                 <button
                   type="button"
@@ -307,13 +391,7 @@ export function Console({
               <select
                 id={`statut-${session.id}`}
                 value={session.statut}
-                onChange={(e) =>
-                  appeler(
-                    { action: "changer_statut", id: session.id, statut: e.target.value },
-                    `statut-${session.id}`,
-                    "Statut mis à jour.",
-                  )
-                }
+                onChange={(e) => changerStatut(session, e.target.value)}
                 disabled={enCours !== null}
               >
                 {STATUTS.map((s) => (
